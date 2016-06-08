@@ -130,7 +130,7 @@ class ExperimentPsychopyView:
         if not self.stopped:
             # draw frames from movies and pictures
             for i in self.playing:
-                if i.__class__.__name__ == 'MovieStim':
+                if i.__class__.__name__ == 'MovieStim3':
                     i.draw()
                 elif i.__class__.__name__ == 'ImageStim':
                     i.draw()
@@ -203,7 +203,7 @@ class ExperimentPsychopyView:
     def load_movie(self, window, filepath):
         ''' Loads a moviefile to RAM tied to specified window. '''
 
-        movieobject = visual.MovieStim(window, filepath, loop=True)
+        movieobject = visual.MovieStim3(window, filepath, loop=True)
         movieobject.units = "norm"
 
         return movieobject
