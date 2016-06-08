@@ -5,6 +5,6 @@ Main script-file that initializes drop. Program should be started running this
 file.
 '''
 
-from drop.Drop import Drop
+from drop.Drop import DropController
 
-dr = Drop()
+dr = DropController()

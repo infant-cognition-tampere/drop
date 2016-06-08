@@ -1,4 +1,4 @@
-''' Drop-class. '''
+''' DropController-class. '''
 
 import os
 import time
@@ -9,7 +9,7 @@ from DropPygtkView import DPV
 from Experiment import Experiment
 
 
-class Drop(EventEmitter):
+class DropController(EventEmitter):
 
     def __init__(self):
         # run the superclass constructor
