@@ -148,7 +148,7 @@ class ExperimentPsychopyView:
         ''' Close all running stimuli. '''
 
         for k in self.playing:
-            if k.__class__.__name__ == 'MovieStim':
+            if k.__class__.__name__ == 'MovieStim3':
                 k.seek(0)  # go start # errors some times
                 k.pause()
                 # k.autoDraw = False
