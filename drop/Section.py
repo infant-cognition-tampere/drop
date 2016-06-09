@@ -1,4 +1,4 @@
-''' Section-class. '''
+"""Section-class."""
 
 import os
 import random
@@ -7,13 +7,14 @@ from pyee import EventEmitter
 
 
 class Section(EventEmitter):
-    '''
-    Section class will handle execution of one section from the experiment
-    file.
-    '''
+    """
+    Section class.
+
+    Will handle execution of one section from the experiment file.
+    """
 
     def __init__(self, mediapath, sectioninfo, on_destroy, timestamp):
-
+        """Constructor."""
         # run the superclass constructor
         super(Section, self).__init__()
 
@@ -30,18 +31,17 @@ class Section(EventEmitter):
         print "Starting section " + sectioninfo["name"] + "..."
 
     def run(self):
+        """Method that starts section process."""
         self.initialize_media()
         glib.idle_add(self.trial_start)
 
     def next_phase(self):
+        """Method that jumps to next phase."""
         if self.phase_running:
             glib.idle_add(self.phase_end, priority=glib.PRIORITY_HIGH)
 
     def initialize_media(self):
-        '''
-        Loads all the necessary files and stores their handles to containers.
-        '''
-
+        """Load all the necessary files and store handles to containers."""
         sectioninfo = self.sectioninfo
 
         # TODO: change draweyes to more general
@@ -104,15 +104,14 @@ class Section(EventEmitter):
                     orders[o] = newlist
 
     def trial_start(self):
-        ''' Start next trial.  trial 0..len(trials)-1 '''
-
+        """Start the prepared trial."""
         self.phase = -1
         self.emit("trial_started", self.trial, self.sectioninfo["trialcount"])
         glib.idle_add(self.phase_start)
         return False
 
     def trial_end(self):
-
+        """Callback for trial to be run after execution finished."""
         # construct the informative text to display to user,
         # needs info from orders too
         misc = ""
@@ -136,8 +135,7 @@ class Section(EventEmitter):
             return False
 
     def phase_start(self):
-        ''' perform actions when a new phase starts '''
-
+        """Perform actions when a new phase starts."""
         self.phase += 1
         phaseinfo = self.sectioninfo["trial"][self.phase]
         self.emit("phase_started", self.phase, len(self.sectioninfo["trial"]),
@@ -191,8 +189,7 @@ class Section(EventEmitter):
         self.phase_running = True
 
     def phase_end(self):
-        ''' Actions when phase ends. '''
-
+        """Callback which is run when phase ends."""
         self.phase_running = False
 
         # clear the timeout event for phase end
@@ -215,11 +212,7 @@ class Section(EventEmitter):
         return False
 
     def create_tag(self, secondary_tag):
-        '''
-        Function which defines actions to take when creating a tag.
-        Returns tag-dict.
-        '''
-
+        """Create a tag-dict with timestamp and state information."""
         timestamp = self.timestamp()
         phaseinfo = self.sectioninfo["trial"][self.phase]
 
@@ -236,11 +229,13 @@ class Section(EventEmitter):
         return tag
 
     def get_order_num(self, testvalue):
-        ''' Returns integer: if testvalue was integer -> returns testvalue
+        """
+        Get order num from string or int input.
+
+        Return integer: if testvalue was integer -> return testvalue
         if testvalue was string -> returns an integer that is recovered
         from orders with key testvalue and current trial as an index.
-        '''
-
+        """
         value = str(testvalue)
         if value == "none" or value == "None":
             return None
@@ -252,11 +247,12 @@ class Section(EventEmitter):
             return self.sectioninfo["orders"][value][self.trial]
 
     def stop(self):
+        """Method that stops the section execution."""
         self.stopme = True
         glib.idle_add(self.phase_end)
 
     def __del__(self):
-
+        """Destructor."""
         # clear any references
         self.remove_all_listeners()
         self.on_destroy = None

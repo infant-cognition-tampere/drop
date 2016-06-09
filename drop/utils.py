@@ -1,29 +1,24 @@
-'''
-Module that contains supplementary functions that are needed to run drop, but
-dont necessarily belong to any specific class.
-'''
+"""Module that contains supplementary functions that are needed to run drop."""
 
 import os
 import json
 
 
 def load_JSON(filename):
-    ''' Return data from json-format file. '''
-
+    """Return data from json-format file."""
     with open(filename) as data_file:
         data = json.load(data_file)
     return data
 
 
 def write_fancy_JSON(filename, data):
-    ''' Write json so that it is readable by humans (rowchange, indent..). '''
-
+    """Write json so that it is readable by humans (rowchange, indent..)."""
     with open(filename, 'w') as outfile:
         json.dump(data, outfile, sort_keys=True, indent=4, ensure_ascii=False)
 
 
 def to_psychopy_coord(normx, normy):
-
+    """Transform coordinates from normalized to psychopy-format."""
     psychopyx = normx*2-1
     psychopyy = 2-normy*2-1
 
@@ -31,19 +26,12 @@ def to_psychopy_coord(normx, normy):
 
 
 def unique(valuelist):
-    '''
-    Returns all the values that are found from a list, but each once only.
-    Returns values in sorted order.
-    '''
-
+    """Return all values found from a list, but each once only and sorted."""
     return sorted(list(set(valuelist)))
 
 
 def get_list_from_dict(dictionary, key):
-    '''
-    Get a list from dictionary, if the key not present, return empty list.
-    '''
-
+    """Get a list from dictionary, if key not present, return empty list."""
     if key in dictionary:
         return dictionary[key]
     else:
@@ -51,10 +39,8 @@ def get_list_from_dict(dictionary, key):
 
 
 def is_file_in_filetree(mediadir, medialist):
-    ''' Return a list of keys to be given as a parameter on the
-    show_message_box. Missing files marked with tag "red".
-    '''
-
+    """Return a list of keys. Missing files marked with tag "red"."""
+    # TODO:function parameters and return values a bit unclear
     medialist2 = []
     for i in medialist:
         if os.path.isfile(os.path.join(mediadir, i)):
@@ -66,17 +52,13 @@ def is_file_in_filetree(mediadir, medialist):
 
 
 def dircheck(directory):
-    ''' Test if the folder exists, if not, generate. '''
-
+    """Test if the folder exists, if not, generate."""
     if not os.access(directory, os.R_OK):
         os.makedirs(directory)
 
 
 def tree_get_first_column_value(treeview):
-    '''
-    PYGTK support function find selected first column item name from treeview.
-    '''
-
+    """Find selected first column item name from treeview (PYGTK-specific)."""
     (model, pathlist) = treeview.get_selection().get_selected_rows()
 
     # check something was selected
@@ -88,8 +70,7 @@ def tree_get_first_column_value(treeview):
 
 
 def aoi_from_experiment_to_cairo(aoi):
-    ''' Transform aoi from exp coordinates to cairo coordinates. '''
-
+    """Transform aoi from exp coordinates to cairo coordinates."""
     width = round(aoi[1]-aoi[0], 2)
     height = round(aoi[3]-aoi[2], 2)
 
@@ -97,8 +78,7 @@ def aoi_from_experiment_to_cairo(aoi):
 
 
 def aoi_from_experiment_to_psychopy(aoi):
-    ''' Trasform aoi from drop coordinates to psychopy coordinates. '''
-
+    """Trasform aoi from drop coordinates to psychopy coordinates."""
     width = round(aoi[1]-aoi[0], 2)
     height = round(aoi[3]-aoi[2], 2)
     posx = aoi[0]+width/2

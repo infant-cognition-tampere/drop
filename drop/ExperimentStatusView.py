@@ -1,4 +1,4 @@
-''' ExperimentStatusView-class. '''
+"""ExperimentStatusView-class."""
 
 import gtk
 import cairo
@@ -8,8 +8,10 @@ import utils
 
 
 class ExperimentStatusView(gtk.DrawingArea):
+    """A view for experiment that provides information to the observer."""
 
     def __init__(self, controller):
+        """Constructor."""
         gtk.DrawingArea.__init__(self)
         self.controller = controller
         self.refresh_interval = 50  # ms
@@ -22,7 +24,7 @@ class ExperimentStatusView(gtk.DrawingArea):
         glib.idle_add(self.redraw)
 
     def add_model(self, model):
-
+        """Add a model to the view."""
         model.on("play_image", self.on_play_image)
         model.on("play_movie", self.on_play_movie)
         model.on("data_condition_added", self.on_data_condition_added)
@@ -33,10 +35,11 @@ class ExperimentStatusView(gtk.DrawingArea):
         model.on("trial_completed", self.on_trial_completed)
 
     def on_trial_completed(self, a, b, c, d):
+        """Callback for the trial_completed signal."""
         self.draw_que = {}
 
     def on_data_condition_added(self, datacondition):
-
+        """Callback for data_condition_added signal."""
         if datacondition["type"] == "aoi":
             # just put something for the unique identifier
             key = "wgc_aoi" + str(len(self.draw_que))
@@ -44,30 +47,35 @@ class ExperimentStatusView(gtk.DrawingArea):
                                   "o": 1, "aoi": datacondition["aoi"]}
 
     def on_play_image(self, stmnum, aoi):
+        """Callback for play_image signal."""
         self.draw_que["maoi"+str(stmnum)] = {"type": "aoi", "r": 0, "g": 1,
                                              "b": 0, "o": 1, "aoi": aoi}
 
     def on_play_movie(self, stmnum, aoi):
+        """Callback for play_movie signal."""
         self.draw_que["iaoi"+str(stmnum)] = {"type": "aoi", "r": 0, "g": 1,
                                              "b": 0, "o": 1, "aoi": aoi}
 
     def add_draw_que(self, itemid, draw_parameters):
-        # add elements to be drawn on the trackstatus canvas. Parameters
-        # must follow pre-defined conditions.
-
+        """Add elements to be drawn on the trackstatus canvas."""
         self.draw_que[itemid] = draw_parameters
 
     def clear_draw_que(self):
+        """Clear all draw-elements."""
         self.draw_que = {}
 
     def remove_draw_que(self, key):
-        # Remove element from the trackstatus canvas. Parameter is an id of the
-        # element. Reserved word: "all" clears everything from the queue.
+        """
+        Remove element from the trackstatus canvas.
 
+        Parameter is an id of the
+        element. Reserved word: "all" clears everything from the queue.
+        """
         if key in self.draw_que:
             self.draw_que.pop(key)
 
     def redraw(self):
+        """Callback for the idle_add drawing-loop."""
         if self.window:
             alloc = self.get_allocation()
             rect = gtk.gdk.Rectangle(0, 0, alloc.width, alloc.height)
@@ -75,8 +83,7 @@ class ExperimentStatusView(gtk.DrawingArea):
             self.window.process_updates(True)
 
     def draw(self, ctx):
-        # what happends when the redraw is initialized
-
+        """Draw the canvas."""
         # wallpaper
         ctx.set_source_rgb(0., 0., 0.)
         ctx.rectangle(0, 0, 1, 1)  # (0, 0, 1, .9)
@@ -146,12 +153,11 @@ class ExperimentStatusView(gtk.DrawingArea):
         glib.timeout_add(self.refresh_interval, self.redraw)
 
     def stop(self):
-        ''' Some other views might want to stop loops...'''
-
+        """Some other views might want to stop loops."""
         return False
 
     def on_expose(self, widget, event):
-
+        """Callback for expose_event."""
         context = widget.window.cairo_create()
         context.rectangle(event.area.x, event.area.y, event.area.width,
                           event.area.height)

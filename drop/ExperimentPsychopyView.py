@@ -1,4 +1,4 @@
-''' ExperimentPsychopyView-class. '''
+"""ExperimentPsychopyView-class."""
 
 import os
 import utils
@@ -7,9 +7,10 @@ from psychopy import visual, sound
 
 
 class ExperimentPsychopyView:
+    """Psychopy-view for the experiment-instance."""
 
     def __init__(self, debug):
-
+        """Constructor."""
         self.window = self.create_window(debug)
 
         self.playing = []
@@ -23,28 +24,28 @@ class ExperimentPsychopyView:
         glib.idle_add(self.redraw)
 
     def on_add_draw_que(self, itemid, draw_parameters):
-        ''' parameters: txt, loc(x,y) 0->1coord, hloc, vloc. '''
-
+        """Parameters: txt, loc(x,y) 0->1coord, hloc, vloc."""
         self.overlay_texts[itemid] = draw_parameters
 
     def on_draw_que_updated(self):
-        ''' Callback for on_draw_que_updated. '''
-
+        """Callback for on_draw_que_updated."""
         self.overlay_texts = {}
 
     def stop(self):
+        """Method for stopping the experiment."""
         self.stopped = True
 
     def play(self):
+        """Method for starting to play the experiment."""
         self.stopped = False
         glib.idle_add(self.redraw)
 
     def add_model(self, model):
-        '''
-        Adds a model for this view.
-        Parameters: model[section-instance handle]
-        '''
+        """
+        Add a model for this view.
 
+        Parameters: model[section-instance handle]
+        """
         model.on("imagefiles_added", self.on_imagefiles_added)
         model.on("moviefiles_added", self.on_moviefiles_added)
         model.on("soundfiles_added", self.on_soundfiles_added)
@@ -57,11 +58,11 @@ class ExperimentPsychopyView:
         model.on("draw_que_updated", self.on_draw_que_updated)
 
     def remove_model(self, model):
-        '''
-        Removes a model from this view.
-        Parameters: model[section-instance handle]
-        '''
+        """
+        Remove a model from this view.
 
+        Parameters: model[section-instance handle]
+        """
         model.remove_listener("imagefiles_added", self.on_imagefiles_added)
         model.remove_listener("moviefiles_added", self.on_moviefiles_added)
         model.remove_listener("soundfiles_added", self.on_soundfiles_added)
@@ -74,21 +75,18 @@ class ExperimentPsychopyView:
         model.remove_listener("draw_que_updated", self.on_draw_que_updated)
 
     def on_draw_diagnostics(self, do_it):
-        ''' Callback for draw_diagnostics signal. '''
-
+        """Callback for draw_diagnostics signal."""
         self.draw_diagnostics = do_it
 
     def on_imagefiles_added(self, mediadir, files):
-        ''' Load list of imagefiles to RAM. '''
-
+        """Load list of imagefiles to RAM."""
         self.imageobjects = []
         for imagef in files:
             himg = self.load_image(self.window, os.path.join(mediadir, imagef))
             self.imageobjects.append(himg)
 
     def on_moviefiles_added(self, mediadir, files):
-        ''' Load list of moviefiles to RAM. '''
-
+        """Load list of moviefiles to RAM."""
         self.movieobjects = []
         for movief in files:
             hmovie = self.load_movie(self.window,
@@ -96,37 +94,32 @@ class ExperimentPsychopyView:
             self.movieobjects.append(hmovie)
 
     def on_soundfiles_added(self, mediadir, files):
-        ''' Load list of soundfiles to RAM. '''
-
+        """Load list of soundfiles to RAM."""
         self.soundobjects = []
         for soundf in files:
             hsound = self.load_sound(os.path.join(mediadir, soundf))
             self.soundobjects.append(hsound)
 
     def on_play_image(self, stimnum, aoi):
-        ''' Callback for play_image signal. '''
-
+        """Callback for play_image signal."""
         stm = self.imageobjects[stimnum]
         self.play_image(stm, aoi)
         self.playing.append(stm)
 
     def on_play_movie(self, stimnum, aoi):
-        ''' Callback for play_movie signal. '''
-
+        """Callback for play_movie signal."""
         stm = self.movieobjects[stimnum]
         self.play_movie(stm, aoi)
         self.playing.append(stm)
 
     def on_play_sound(self, stimnum):
-        ''' Callback for play_sound signal. '''
-
+        """Callback for play_sound signal."""
         stm = self.soundobjects[stimnum]
         stm.play()
         self.playing.append(stm)
 
     def redraw(self):
-        ''' Drawing loop. '''
-
+        """Drawing loop."""
         if not self.stopped:
             # draw frames from movies and pictures
             for i in self.playing:
@@ -145,8 +138,7 @@ class ExperimentPsychopyView:
         return False
 
     def on_stimuli_cleared(self):
-        ''' Close all running stimuli. '''
-
+        """Close all running stimuli."""
         for k in self.playing:
             if k.__class__.__name__ == 'MovieStim3':
                 k.seek(0)  # go start # errors some times
@@ -162,11 +154,7 @@ class ExperimentPsychopyView:
         self.playing = []
 
     def draw_overlay_texts(self):
-        '''
-        Draws all elements in the self.draw_elements que on self.window.
-        Will draw in order of appearance in the list.
-        '''
-
+        """Draw all elements in the que. Draws by order of the list."""
         ystartloc = 0.95
         # loop through all the elements
         for key in self.overlay_texts:
@@ -186,11 +174,7 @@ class ExperimentPsychopyView:
                 htxt.draw()
 
     def create_window(self, debug):
-        '''
-        Creates a window for the experiment to be shown.
-        Parameters:
-        '''
-
+        """Create a window for the experiment. Debug[bool]:windowed mode."""
         res = [1024, 768]
         res_ratio = float(res[1])/float(res[0])
 
@@ -201,29 +185,24 @@ class ExperimentPsychopyView:
                                  fullscr=True, allowGUI=False)
 
     def load_movie(self, window, filepath):
-        ''' Loads a moviefile to RAM tied to specified window. '''
-
+        """Load a moviefile to RAM tied to specified window."""
         movieobject = visual.MovieStim3(window, filepath, loop=True)
         movieobject.units = "norm"
 
         return movieobject
 
     def load_image(self, window, filepath):
-        ''' Loads ann imagefile to RAM tied to specified window. '''
-
+        """Load ann imagefile to RAM tied to specified window."""
         return visual.ImageStim(window, image=filepath)
 
     def load_sound(self, filepath):
-        ''' Loads a soundfile to RAM. '''
-
+        """Load a soundfile to RAM."""
         return sound.SoundPygame(value=filepath)
 
     def play_movie(self, movieobject, aoi):
-        '''
-        Transfer to psychopy coordinates (-1->1, 1->-1)
-        from normalized (0->1, 0->1)
-        '''
-
+        """Start playing movie."""
+        # Transfer to psychopy coordinates (-1->1, 1->-1)
+        # from normalized (0->1, 0->1)
         p_x, p_y, width, height = utils.aoi_from_experiment_to_psychopy(aoi)
 
         movieobject.play()
@@ -234,6 +213,7 @@ class ExperimentPsychopyView:
         # stm.autoDraw = True
 
     def play_image(self, imageobject, aoi):
+        """Start playing image."""
         p_x, p_y, width, height = utils.aoi_from_experiment_to_psychopy(aoi)
 
         imageobject.pos = (p_x, p_y)
@@ -242,7 +222,7 @@ class ExperimentPsychopyView:
         # stm.autoDraw = True
 
     def __del__(self):
-
+        """Destructor."""
         self.stopped = True
         self.window.close()
         self.window = None

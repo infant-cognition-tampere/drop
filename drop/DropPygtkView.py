@@ -1,4 +1,4 @@
-''' DropPygtkView-class. '''
+"""DropPygtkView-class."""
 
 import os
 import gtk
@@ -9,10 +9,10 @@ from ExperimentStatusView import ExperimentStatusView
 
 
 class DPV:
+    """A pygtk-view for drop controller."""
 
     def __init__(self, ctrl, mediadir, experimentdir):
-        ''' Initialization function, run automatically on object creation. '''
-
+        """Constructor."""
         # view knows the controller function calls
         self.ctrl = ctrl
         self.ctrl.on("section_completed", self.on_section_completed)
@@ -172,17 +172,18 @@ class DPV:
 
         self.experimentdir = experimentdir
 
-        ''' setup Experiment-list '''
+        # setup Experiment-list
         for file in os.listdir(self.experimentdir):
             if file.endswith(".json"):
                 self.liststore_exp.append([file])
 
     def on_error(self, errormsg):
+        """Callback for error-signal."""
         self.show_message_box("Error: " + errormsg, "Drop error",
                               ("Ok", gtk.RESPONSE_OK), [None], [None])
 
     def on_section_completed(self, csection, lensection):
-
+        """Callback for section_completed-signal."""
         if csection + 1 != lensection:
             self.show_message_box("Section " + str(csection + 1) + "/" +
                                   str(lensection) + " finished.",
@@ -207,7 +208,7 @@ class DPV:
                                   [lensection, csection])
 
     def on_experiment_started(self):
-
+        """Callback for experiment_started-signal."""
         # clear information about previous experiments rounds
         self.liststore_status.clear()
 
@@ -215,17 +216,17 @@ class DPV:
         self.window.present()
 
     def on_experiment_selected(self, button):
+        """Callback for experiment_selected-signal."""
         expfile = utils.tree_get_first_column_value(self.treeview_exp)
         self.ctrl.set_experiment_file(expfile)
         self.check_experiment_start_conditions()
 
     def on_addsensorbutton_clicked(self, button):
-        ''' Callback for addeeg-button. '''
+        """Callback for addeeg-button."""
         self.ctrl.addsensor()
 
     def add_recorder(self, rhandle):
-        ''' Recorder addition involving gui creation. '''
-
+        """Recorder addition involving gui creation."""
         device_id = rhandle.get_sensor_id()
         gui_elements = rhandle.get_control_elements()
 
@@ -251,23 +252,16 @@ class DPV:
         self.trackstatus.add_model(rhandle)
 
     def recorder_button_callback(self, button, device_id, button_id):
+        """Callback for recorder_button pressed-signal."""
         self.ctrl.recorder_action(device_id, button_id)
 
     def remove_sensor(self, button, device_id, hvbox):
-        '''
-        Callback for the remove_sensor button(s).
-        Button handle is given as a parameter.
-        '''
-
+        """Callback for the remove_sensor button(s). Parameter:buttonhandle."""
         self.ctrl.remove_sensor(device_id)
         self.recorders_vbox.remove(hvbox)
 
     def on_exinfo_clicked(self, button):
-        '''
-        Callback for exinfo button. Will scan the selected experiment file
-        and show an "overview" of the script to user.
-        '''
-
+        """Callback for exinfo button. Show overview of selected experiment."""
         # check experiment was actually selected
         exinfo = self.ctrl.get_experiment_information()
         if exinfo is None:
@@ -281,50 +275,41 @@ class DPV:
                                   "online-JSON syntax tester.")
 
     def on_keypress(self, widget, event):
-        ''' Keypress callback-function. '''
-
+        """Keypress callback-function."""
         keyname = gtk.gdk.keyval_name(event.keyval)
         if keyname in ["F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9",
                        "F10", "F11", "F12"]:
             self.ctrl.on_keypress(keyname)
 
     def on_id_changed(self, widget):
-        ''' Id-change callback-function. '''
-
+        """Id-change callback-function."""
         self.ctrl.set_participant_id(widget.get_text())
         self.check_experiment_start_conditions()
 
     def on_gui_action(self, editable):
-        ''' Callback for change of values in the gui. Can be set to any element
-        with action might affect exp start conditions.
-        '''
+        """Callback for change in gui that affects exp start conditions."""
         self.check_experiment_start_conditions()
 
     def on_sensors_changed(self):
-        ''' Things to do when a sensor device is attached or removed. '''
-
+        """Callback for sensors_changed_signal."""
         self.check_experiment_start_conditions()
         return False
 
     def on_playbutton_clicked(self, button):
-        ''' Start the experiment or continue paused one. '''
-
+        """Start the experiment or continue paused one."""
         debug = self.debugbutton.get_active()
         self.ctrl.play(debug)
 
     def on_continuebutton_clicked(self, button):
-        ''' Callback for continuebutton click. '''
-
+        """Callback for continuebutton click."""
         self.ctrl.continue_experiment()
 
     def on_stopbutton_clicked(self, button):
-        ''' Callback for stopbutton click. '''
-
+        """Callback for stopbutton click."""
         self.ctrl.stop()
 
     def on_trial_completed(self, section, tn, misc):
-        ''' Callback for trial completion during experiment. '''
-
+        """Callback for trial completion during experiment."""
         # append status value to listview
         self.liststore_status.append(('%s' % section, tn, misc))
 
@@ -333,11 +318,7 @@ class DPV:
         adj.set_value(adj.upper-adj.page_size)
 
     def check_experiment_start_conditions(self):
-        '''
-        Function that checks that all the prequisities for running experiment
-        are met. Activates buttons.
-        '''
-
+        """Check all prequisities running experiment met. Activate buttons."""
         # participant id
         id_code = self.ctrl.get_participant_id()
         exp = self.ctrl.get_experiment_file()
@@ -350,21 +331,18 @@ class DPV:
             self.playbutton.set_sensitive(False)
 
     def destroy(self, widget, data=None):
-        ''' Class destroyer callback. '''
-
+        """Class destroyer callback."""
         gtk.main_quit()
         self.ctrl.close()
         self.ctrl = None
 
     def main(self):
-        ''' PyGTK application main loop or waiting function. '''
-
+        """PyGTK application main loop or waiting function."""
         gtk.gdk.threads_init()
         gtk.main()
 
     def display_experiment_information(self, mediadir, experiment_data):
-        ''' Spawns a gui that analyses the experiment file consistency. '''
-
+        """Spawn a gui that analyses the experiment file consistency."""
         mediafiles = []
 
         # loop (dictlist) sections -> gather all wanted info
@@ -406,12 +384,12 @@ class DPV:
                          utils.is_file_in_filetree(mediadir, medialist))
 
     def text_dialog(self, txt):
-        '''
-        Spawns a dialog window with a possibility to put long text (scrollable)
+        """
+        Spawn a dialog window with a possibility to put scrollable text.
+
         parameters:
         txt[list of strings], each string represents a row of in the dialog.
-        '''
-
+        """
         window = gtk.Window(gtk.WINDOW_TOPLEVEL)
         window.set_size_request(400, 600)
 
@@ -454,11 +432,7 @@ class DPV:
     def show_message_box(self, message, title="", buttons=("OK",
                          gtk.RESPONSE_OK), follow_up=[None],
                          follow_up_args=[None]):
-        '''
-        PYGTK support function, creates a message box with supplied
-        information and follow-up functions.
-        '''
-
+        """Create a message box with supplied information and callbacks."""
         def close_dialog(dlg, rid):
             dlg.destroy()
 
