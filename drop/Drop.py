@@ -7,6 +7,7 @@ import utils
 from pyee import EventEmitter
 from DropPygtkView import DPV
 from Experiment import Experiment
+from yapsy.PluginManager import PluginManager
 
 
 class DropController(EventEmitter):
@@ -29,6 +30,7 @@ class DropController(EventEmitter):
         self.savedir = os.path.join(drop_home, "recordings")
         self.experimentdir = os.path.join(drop_home, 'experiments')
         self.mediadir = os.path.join(drop_home, 'media')
+        self.plugindir = os.path.join(drop_home, 'plugins')
 
         # check that saving, experiment etc directories are present
         utils.dircheck(self.savedir)
@@ -37,6 +39,11 @@ class DropController(EventEmitter):
 
         # temporary? keyboard-contigency list
         self.keyboard_contigency = []
+
+        # initialize plugin manager
+        self.pluginmanager = PluginManager()
+        self.pluginmanager.setPluginPlaces([self.plugindir])
+        self.pluginmanager.collectPlugins()
 
         # initialize pygtk-view
         self.ec = DPV(self, self.mediadir, self.experimentdir)
