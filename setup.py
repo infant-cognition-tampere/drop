@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-DROP - Data Recording Open-source Project
+DROP - Data Recording Open-source Project.
 
 This setup.py is based on:
 https://packaging.python.org/en/latest/distributing.html
