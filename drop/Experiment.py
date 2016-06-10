@@ -1,18 +1,21 @@
-''' Experiment-class. '''
+"""Experiment-class."""
 
 import glib
 from Section import Section
 
 
 class Experiment:
-    ''' Experiment class will take care of the experiment presentation
-        (window, ... control) will work one experiment file and control the
-        flow of sections. "Experiment"-level stuff.
-    '''
+    """
+    Experiment class.
+
+    Takes care of the experiment presentation
+    (window, ... control) will work one experiment file and control the
+    flow of sections. "Experiment"-level stuff.
+    """
 
     def __init__(self, views, ctrl, experiment_data, filename, mediadir,
                  on_experiment_done):
-
+        """Constructor."""
         self.experiment_id = filename
         self.data = experiment_data
         self.ctrl = ctrl
@@ -25,18 +28,17 @@ class Experiment:
         self.section_prepare(0)
 
     def stop(self):
-        ''' Stop the experiment. '''
-
+        """Stop experiment."""
         if self.section is not None:
             self.section.stop()
 
     def next_phase(self):
+        """Jump to next phase."""
         if self.section is not None:
             self.section.next_phase()
 
     def section_prepare(self, nextsection):
-        ''' Perform pre-section opearations. '''
-
+        """Perform pre-section opearations."""
         # end experiment?
         if nextsection >= len(self.data):
             glib.idle_add(self.on_experiment_done)
@@ -55,8 +57,7 @@ class Experiment:
         glib.idle_add(self.section_start)
 
     def section_start(self):
-        ''' Create new section instance and start it. '''
-
+        """Create new section instance and start it."""
         sectioninfo = self.data[self.section_num]
 
         # generate the object for the next section
@@ -70,10 +71,7 @@ class Experiment:
         self.section.run()
 
     def on_section_end(self):
-        '''
-        Callback for the section. Things to perform when section has ended.
-        '''
-
+        """Callback for section_end."""
         self.section = None
         sectioninfo = self.data[self.section_num]
 
@@ -84,8 +82,7 @@ class Experiment:
             glib.idle_add(self.on_saving_data_completed)
 
     def on_saving_data_completed(self):
-        ''' Callback for saving_data_completed. '''
-
+        """Callback for saving_data_completed."""
         sectioninfo = self.data[self.section_num]
 
         # check if next section to begin automatically
@@ -96,8 +93,7 @@ class Experiment:
             self.ctrl.on_section_completed(self.section_num, len(self.data))
 
     def __del__(self):
-        ''' Destructor for the experiment class. '''
-
+        """Destructor for the experiment class."""
         for view in self.views:
             view.stop()
             self.views = None
