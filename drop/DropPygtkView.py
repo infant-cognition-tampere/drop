@@ -223,7 +223,7 @@ class DPV:
 
     def on_addsensorbutton_clicked(self, button):
         """Callback for addeeg-button."""
-        self.ctrl.addsensor()
+        self.show_plugin_finder()
 
     def add_recorder(self, rhandle):
         """Recorder addition involving gui creation."""
@@ -462,3 +462,55 @@ class DPV:
 
         # show the message box, waiting answer
         dlg.show()
+
+    def show_plugin_finder(self):
+        """A mini-GUI that shows a list of plugings for user to select from."""
+        def on_plugin_finder_select(widget, rid, htreeview, callback):
+            """Callback for plugin_finder_select-button."""
+            plugin = utils.tree_get_first_column_value(htreeview)
+            widget.destroy()
+
+            # if pressed select
+            if rid == -5:
+                if plugin is None:
+                    return
+                glib.idle_add(callback, plugin)
+
+        dlg = gtk.Dialog("Plugin browser", self.window, 0, ("Select",
+                                                            gtk.RESPONSE_OK))
+        dlg.set_border_width(5)
+        dlg.set_size_request(300, 480)
+        dlg.set_destroy_with_parent(True)
+
+        pliststore = gtk.ListStore(str, str)
+        treeview = gtk.TreeView(pliststore)
+
+        # create the name-column
+        plugin_column = gtk.TreeViewColumn("Name")
+        plugin_cell = gtk.CellRendererText()
+        treeview.append_column(plugin_column)
+        plugin_column.pack_start(plugin_cell, True)
+        plugin_column.set_attributes(plugin_cell, text=0)
+
+        # create description-column
+        description_column = gtk.TreeViewColumn("Description")
+        description_cell = gtk.CellRendererText()
+        treeview.append_column(description_column)
+        description_column.pack_start(description_cell, True)
+        description_column.set_attributes(description_cell, text=1)
+
+        treeview_label = gtk.Label()
+        treeview_label.set_alignment(0.0, 0.5)
+        treeview_label.set_markup("<b>Select plugin:</b>")
+
+        dlg.vbox.set_homogeneous(False)
+        dlg.vbox.pack_start(treeview_label, expand=False)
+        dlg.vbox.pack_start(treeview)
+        dlg.show_all()
+        dlg.connect("response", on_plugin_finder_select, treeview,
+                    self.ctrl.addsensor)
+
+        # add plugins to liststore
+        plugins = self.ctrl.pluginmanager.getAllPlugins()
+        for p in plugins:
+            pliststore.append([p.name, p.description])

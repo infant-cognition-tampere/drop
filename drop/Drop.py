@@ -50,9 +50,10 @@ class DropController(EventEmitter):
         self.ec = DPV(self, self.mediadir, self.experimentdir)
         self.ec.main()
 
-    def addsensor(self):
+    def addsensor(self, sensor_name):
         """Callback for addeeg-button."""
         # TODO: missing feature
+        print sensor_name
         pass
 
     def get_sensors(self):
