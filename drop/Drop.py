@@ -28,6 +28,7 @@ class DropController(EventEmitter):
         # define important directories for external (not program code) files
         homedir = os.environ['HOME']
         drop_home = os.path.join(homedir, "Documents", "drop_data")
+        self.rootdir = drop_home
         self.savedir = os.path.join(drop_home, "recordings")
         self.experimentdir = os.path.join(drop_home, 'experiments')
         self.mediadir = os.path.join(drop_home, 'media')
@@ -51,10 +52,13 @@ class DropController(EventEmitter):
         self.ec.main()
 
     def addsensor(self, sensor_name):
-        """Callback for addeeg-button."""
-        # TODO: missing feature
-        print sensor_name
-        pass
+        """Callback for Add sensor -button."""
+        # TODO: Improve APIs for plugins
+        plugin_info = self.pluginmanager.getPluginByName(sensor_name)
+        plugin_info.plugin_object.get_sensor(self.rootdir,
+                                             self.savedir,
+                                             self.on_recorder_created,
+                                             self.on_recorder_error)
 
     def get_sensors(self):
         """Return list of sensors."""
