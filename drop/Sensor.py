@@ -24,7 +24,7 @@ class Sensor(EventEmitter):
         self.data_conditions = []
 
         # sensor_id should be unique
-        rndnum = random.randint(0, high=100000)
+        rndnum = random.randint(0, 100000)
         self.sensor_id = "sensor" + str(rndnum)
 
     def trial_started(self, tn, tc):
