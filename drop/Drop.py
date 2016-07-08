@@ -7,6 +7,8 @@ import utils
 from pyee import EventEmitter
 from DropPygtkView import DPV
 from Experiment import Experiment
+from yapsy.PluginManager import PluginManager
+from plugins import DropPluginLocator
 
 
 class DropController(EventEmitter):
@@ -26,9 +28,11 @@ class DropController(EventEmitter):
         # define important directories for external (not program code) files
         homedir = os.environ['HOME']
         drop_home = os.path.join(homedir, "Documents", "drop_data")
+        self.rootdir = drop_home
         self.savedir = os.path.join(drop_home, "recordings")
         self.experimentdir = os.path.join(drop_home, 'experiments')
         self.mediadir = os.path.join(drop_home, 'media')
+        self.plugindir = os.path.join(drop_home, 'plugins')
 
         # check that saving, experiment etc directories are present
         utils.dircheck(self.savedir)
@@ -38,14 +42,23 @@ class DropController(EventEmitter):
         # temporary? keyboard-contigency list
         self.keyboard_contigency = []
 
+        # initialize plugin manager
+        self.pluginmanager = PluginManager(plugin_locator=DropPluginLocator())
+        self.pluginmanager.setPluginPlaces([self.plugindir])
+        self.pluginmanager.collectPlugins()
+
         # initialize pygtk-view
         self.ec = DPV(self, self.mediadir, self.experimentdir)
         self.ec.main()
 
-    def addsensor(self):
-        """Callback for addeeg-button."""
-        # TODO: missing feature
-        pass
+    def addsensor(self, sensor_name):
+        """Callback for Add sensor -button."""
+        # TODO: Improve APIs for plugins
+        plugin_info = self.pluginmanager.getPluginByName(sensor_name)
+        plugin_info.plugin_object.get_sensor(self.rootdir,
+                                             self.savedir,
+                                             self.on_recorder_created,
+                                             self.on_recorder_error)
 
     def get_sensors(self):
         """Return list of sensors."""
