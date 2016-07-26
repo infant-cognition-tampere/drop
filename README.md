@@ -36,16 +36,19 @@ Home page [ICL Tampere](http://uta.fi/med/icl)
 
 ## Usage
 
-### Terms
+### Terminology
 * Experiment file = a JSON-file that formally describes the structure of an
 experiment. See later for more info of the file format.
 * Section = part of the experiment that repeats the similar sequence of stimuli
 with specified variation. Experiment is a series of sections.
 * Trial = one round of presented stimuli. Section consists of trials.
+* Phase = one set of stimuli played fixed or dynamic time (data condition).
+Trial consists of phases.
 * AOI = Area Of Interest, a square-shape area that is defined by coordinates
 x1,y1,x2,y2.
 * Sensor = a sensor element that can be used to record data during experiment
 on drop. Each sensor needs a plug-in that matches with drop sensor-API.
+* Data condition = A condition in the experiment when phase does 
 
 ### Basics
 If drop has been installed using pip it can be started by typing `drop` on
@@ -53,10 +56,29 @@ terminal. A window with program controls should appear. Window acts as a
 control interface during experiment. On the left the user must select an
 experiment, connect necessary sensors and input user-id. On the top-right the
 user is presented with a black window which displays information from the
-experiment and possibly from the sensors during experiment-session.
+experiment and possibly from the sensors during experiment-session. Drop is
+configured to work in a computer with primary and secondary (non-mirroring)
+displays where the experiment is shown on the secondary display and the
+leader of the experiment controls the flow of the experiment in the primary
+display.
 
 #### Controls
-
+* Play: starts the selected experiment if all start conditions are met.
+* Stop: ends the current section (might proceed to next section or prompt a 
+cross-section dialog).
+* Continue: forcefully continues to the next phase on the experiment if the
+experiment is halted by a data condition or by fixed duration break.
+* (Debug/windowed): when enabled, the experiment will be shown in a window
+instead of full screen on the secondary display.
+* Experiment info: displays a brief overview of the experiment structure and
+checks that the JSON-syntax is correct (does not check logical errors or
+missing items etc.). Also checks if the files are present on the working
+directory. Files that are missing are labeled on red.
+* Participant id: A field for the participant identification code - needs to
+be filled for the experiment to run.
+* Log: the log collects messages sent from the experiment instance and inserts
+a new line each time a new trial is completed displaying little information
+of the trials variables etc.
 
 ### Experiment file structure
 Experiment files presented by drop are stored under the work folder tasks/.
@@ -83,10 +105,19 @@ permutation
 
 
 #### Example experiment
+A simple example of an experiment that displays a sequence of wallpaper and
+wallpaper + image "cat.png" for 10 times. The image is first displayed 5 times
+on the right edge of the screen and 5 times on the left edge of the screen.
+The example experiment should work if it's inserted on the working directory
+and the working directory media folder includes a folder "my_media" which
+includes files "wallpaper.png" and "cat.png". If a supported eyetracker is used
+the cat disappears when the gaze arrives at the correct aoi. Otherwise the
+cat stays for 5 seconds (or as long as the leader presses "continue").
+
 ```
 [
     {
-        "name": "example",
+        "name": "example_section",
         "mediafolder": "my_media",
         "images": ["wallpaper.png", "cat.png"],
         "orders": {"aoi_order":[1,1,1,1,1,2,2,2,2,2]},
@@ -100,23 +131,26 @@ permutation
         "trial": [
             {
                 "duration":2000,
-                "tag":"wait",
+                "tag":"wait_phase",
                 "extratags":{
                     "stim": 0,
-                    "aoi" : 0,
+                    "aoi" : 0
                 },
                 "stimuli":[
                     {"type":"image", "id":0, "aoi":0}
                 ]
             },
             {
-                "gc_aois":aoi_order,
-                "tag":"cat",
+                "duration":5000,
+                "gc_aois":"aoi_order",
+                "tag":"cat_phase",
                 "extratags":{
                     "stim": 1,
-                    "aoi" : aoi_order
+                    "aoi" : "aoi_order"
+                },
                 "stimuli":[
-                    {"type":"image", "id":0, "aoi":0}, {"type":"image", "id":1, "aoi":aoi_order}
+                    {"type":"image", "id":0, "aoi":0}, {"type":"image", "id":1, "aoi":"aoi_order"}
+                ]
             }
         ]
     }
@@ -126,4 +160,5 @@ permutation
 ### Development
 Program code is documented with docstrings on functions. Sensor API is most
 easily understood by examining the sensor superclass from which the
-sensor-plugins inherit.
+sensor-plugins inherit. Some features are not completed and may miss
+functionality or disfunction. Use the program at your own risk.
