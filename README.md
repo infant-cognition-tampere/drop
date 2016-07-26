@@ -49,7 +49,7 @@ x1,y1,x2,y2.
 * Sensor = a sensor element that can be used to record data during experiment
 on drop. Each sensor needs a plug-in that matches with drop sensor-API.
 * Data condition = A condition in the experiment when phase does
-* working directory = A directory that contains the experiments, media folders
+* Working directory = A directory that contains the experiments, media folders
 and possible recordings by sensors. The working directory at the moment is
 ~/Documents/drop_data which contains folders experiments, media and recordings.
 The working directory is the source for experiments and media displayed by
