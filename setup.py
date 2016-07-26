@@ -22,7 +22,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='drop',
-    version='0.0.1',
+    version='0.0.2',
     description='Data Recording Open-source Project',
     long_description=long_description,
     url='https://github.com/infant-cognition-tampere/drop',
