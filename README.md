@@ -48,7 +48,12 @@ Trial consists of phases.
 x1,y1,x2,y2.
 * Sensor = a sensor element that can be used to record data during experiment
 on drop. Each sensor needs a plug-in that matches with drop sensor-API.
-* Data condition = A condition in the experiment when phase does 
+* Data condition = A condition in the experiment when phase does
+* working directory = A directory that contains the experiments, media folders
+and possible recordings by sensors. The working directory at the moment is
+~/Documents/drop_data which contains folders experiments, media and recordings.
+The working directory is the source for experiments and media displayed by
+drop.
 
 ### Basics
 If drop has been installed using pip it can be started by typing `drop` on
@@ -60,7 +65,8 @@ experiment and possibly from the sensors during experiment-session. Drop is
 configured to work in a computer with primary and secondary (non-mirroring)
 displays where the experiment is shown on the secondary display and the
 leader of the experiment controls the flow of the experiment in the primary
-display.
+display. Insert your experiments and media on the working directory
+(see above).
 
 #### Controls
 * Play: starts the selected experiment if all start conditions are met.
@@ -108,8 +114,8 @@ permutation
 A simple example of an experiment that displays a sequence of wallpaper and
 wallpaper + image "cat.png" for 10 times. The image is first displayed 5 times
 on the right edge of the screen and 5 times on the left edge of the screen.
-The example experiment should work if it's inserted on the working directory
-and the working directory media folder includes a folder "my_media" which
+The example experiment should work if it's inserted on the experiment directory
+and the working-directory's media folder includes a folder "my_media" which
 includes files "wallpaper.png" and "cat.png". If a supported eyetracker is used
 the cat disappears when the gaze arrives at the correct aoi. Otherwise the
 cat stays for 5 seconds (or as long as the leader presses "continue").
@@ -161,4 +167,4 @@ cat stays for 5 seconds (or as long as the leader presses "continue").
 Program code is documented with docstrings on functions. Sensor API is most
 easily understood by examining the sensor superclass from which the
 sensor-plugins inherit. Some features are not completed and may miss
-functionality or disfunction. Use the program at your own risk.
+functionality or disfunction.
