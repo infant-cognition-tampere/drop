@@ -254,3 +254,8 @@ class DropController(EventEmitter):
     def __del__(self):
         """Destructor."""
         print "Exitting Drop."
+
+
+def main():
+    """Main function for running drop."""
+    DropController()

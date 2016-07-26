@@ -103,7 +103,10 @@ setup(
     # "scripts" keyword. Entry points provide cross-platform support and allow
     # pip to create the appropriate form of executable for the target platform.
     entry_points={
-        # TODO: Add entry point for drop main
+        # Entry point for drop main
+        'console_scripts': [
+            'drop = drop.Drop:main'
+        ]
     },
 
     # To use nose2 to run your package’s tests, add the following
