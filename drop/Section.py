@@ -28,6 +28,11 @@ class Section(EventEmitter):
         self.on_destroy = on_destroy
         self.htimeout_event = None
 
+        # refresh rate seems to not work perfectly (due to a bug in some lib),
+        # the number 100 seems to be about 60Hz
+        self.refresh_rate = 100
+        self.refresh_timer = 0
+
         print "Starting section " + sectioninfo["name"] + "..."
 
     def run(self):
@@ -175,7 +180,6 @@ class Section(EventEmitter):
             elif i["type"] == "movie":
                 aoinum = self.get_order_num(i["aoi"])
                 aoi = self.sectioninfo["aois"][aoinum]
-
                 self.emit("play_movie", stimnum, aoi)
 
         # send start tag for the phase
@@ -186,11 +190,19 @@ class Section(EventEmitter):
             self.htimeout_event = glib.timeout_add(phase_duration,
                                                    self.phase_end,
                                                    priority=glib.PRIORITY_HIGH)
+
+        # start refresh loop
+        self.refresh_started = self.timestamp()
+        self.refresh_timer = 0
+        refresh_interval = 1000/self.refresh_rate
+        self.refresh_event = glib.timeout_add(refresh_interval, self.refresh)
         self.phase_running = True
 
     def phase_end(self):
         """Callback which is run when phase ends."""
         self.phase_running = False
+        # clear refresh loop
+        glib.source_remove(self.refresh_event)
 
         # clear the timeout event for phase end
         if self.htimeout_event is not None:
@@ -210,6 +222,29 @@ class Section(EventEmitter):
 
         glib.idle_add(self.phase_start, priority=glib.PRIORITY_HIGH)
         return False
+
+    def refresh(self):
+        """Update image locations, rotations etc."""
+        self.refresh_timer = self.refresh_timer + 1
+        phaseinfo = self.sectioninfo["trial"][self.phase]
+        factor = (self.timestamp()-self.refresh_started)
+        nfactor = factor*1000/phaseinfo["duration"]
+
+        for i in phaseinfo["stimuli"]:
+            stimnum = self.get_order_num(i["id"])
+            if i["type"] == "image" and "rotate" in i:
+                self.emit("rotation_update", stimnum, factor*i["rotate"])
+            if i["type"] == "image" and "move" in i:
+                saoi = self.sectioninfo["aois"][self.get_order_num(i["aoi"])]
+                eaoi = self.sectioninfo["aois"][self.get_order_num(i["move"])]
+                current_aoi = [saoi[0]+nfactor*(saoi[0]-eaoi[0]),
+                               saoi[1]+nfactor*(saoi[1]-eaoi[1]),
+                               saoi[2]+nfactor*(saoi[2]-eaoi[2]),
+                               saoi[3]+nfactor*(saoi[3]-eaoi[3])]
+                self.emit("position_update", stimnum, current_aoi)
+
+        # print self.refresh_timer
+        return True
 
     def create_tag(self, secondary_tag):
         """Create a tag-dict with timestamp and state information."""

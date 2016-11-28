@@ -56,6 +56,8 @@ class ExperimentPsychopyView:
         model.on("draw_diagnostics", self.on_draw_diagnostics)
         model.on("add_draw_que", self.on_add_draw_que)
         model.on("draw_que_updated", self.on_draw_que_updated)
+        model.on("rotation_update", self.on_rotation_update)
+        model.on("position_update", self.on_position_update)
 
     def remove_model(self, model):
         """
@@ -73,6 +75,20 @@ class ExperimentPsychopyView:
         model.remove_listener("draw_diagnostics", self.on_draw_diagnostics)
         model.remove_listener("add_draw_que", self.on_add_draw_que)
         model.remove_listener("draw_que_updated", self.on_draw_que_updated)
+        model.remove_listener("rotation_update", self.on_rotation_update)
+        model.remove_listener("position_update", self.on_position_update)
+
+    def on_rotation_update(self, stmnum, rotation):
+        """Callback for rotation_update-signal."""
+        for i in self.playing:
+            if i["type"] == "image" and i["stmnum"] == stmnum:
+                i["rotation"] = rotation
+
+    def on_position_update(self, stmnum, position):
+        """Callback for position_update-signal."""
+        for i in self.playing:
+            if i["type"] == "image" and i["stmnum"] == stmnum:
+                i["position"] = position
 
     def on_draw_diagnostics(self, do_it):
         """Callback for draw_diagnostics signal."""
@@ -102,31 +118,39 @@ class ExperimentPsychopyView:
 
     def on_play_image(self, stimnum, aoi):
         """Callback for play_image signal."""
-        stm = self.imageobjects[stimnum]
-        self.play_image(stm, aoi)
-        self.playing.append(stm)
+        handle = self.imageobjects[stimnum]
+        self.play_image(handle, aoi)
+        self.playing.append({"type": "image", "stmnum": stimnum,
+                             "handle": handle, "rotation": 0, "position": aoi})
 
     def on_play_movie(self, stimnum, aoi):
         """Callback for play_movie signal."""
-        stm = self.movieobjects[stimnum]
-        self.play_movie(stm, aoi)
-        self.playing.append(stm)
+        handle = self.movieobjects[stimnum]
+        self.play_movie(handle, aoi)
+        self.playing.append({"type": "movie", "stmnum": stimnum,
+                             "handle": handle})
 
     def on_play_sound(self, stimnum):
         """Callback for play_sound signal."""
-        stm = self.soundobjects[stimnum]
-        stm.play()
-        self.playing.append(stm)
+        handle = self.soundobjects[stimnum]
+        handle.play()
+        self.playing.append({"type": "sound", "stmnum": stimnum,
+                             "handle": handle})
 
     def redraw(self):
         """Drawing loop."""
         if not self.stopped:
             # draw frames from movies and pictures
             for i in self.playing:
-                if i.__class__.__name__ == 'MovieStim3':
-                    i.draw()
-                elif i.__class__.__name__ == 'ImageStim':
-                    i.draw()
+                if i["type"] == "movie":
+                    i["handle"].draw()
+                elif i["type"] == "image":
+                    p_x, p_y, width, height = \
+                        utils.aoi_from_experiment_to_psychopy(i["position"])
+                    i["handle"].pos = (p_x, p_y)
+                    i["handle"].size = [width, height]
+                    i["handle"].setOri(i["rotation"])
+                    i["handle"].draw()
 
             if self.draw_diagnostics:
                 self.draw_overlay_texts()
@@ -140,16 +164,16 @@ class ExperimentPsychopyView:
     def on_stimuli_cleared(self):
         """Close all running stimuli."""
         for k in self.playing:
-            if k.__class__.__name__ == 'MovieStim3':
-                k.seek(0)  # go start # errors some times
-                k.pause()
+            if k["type"] == "movie":
+                k["handle"].seek(0)  # go start # errors some times
+                k["handle"].pause()
                 # k.autoDraw = False
 
-            elif k.__class__.__name__ == 'SoundStim':
-                k.stop()
+            elif k["type"] == 'SoundStim':
+                k["handle"].stop()
             else:
                 # imageobject
-                k.autoDraw = False
+                k["handle"].autoDraw = False
 
         self.playing = []
 
