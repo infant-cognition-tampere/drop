@@ -237,10 +237,10 @@ class Section(EventEmitter):
             if i["type"] == "image" and "move" in i:
                 saoi = self.sectioninfo["aois"][self.get_order_num(i["aoi"])]
                 eaoi = self.sectioninfo["aois"][self.get_order_num(i["move"])]
-                current_aoi = [saoi[0]+nfactor*(saoi[0]-eaoi[0]),
-                               saoi[1]+nfactor*(saoi[1]-eaoi[1]),
-                               saoi[2]+nfactor*(saoi[2]-eaoi[2]),
-                               saoi[3]+nfactor*(saoi[3]-eaoi[3])]
+                current_aoi = [saoi[0]+nfactor*(eaoi[0]-saoi[0]),
+                               saoi[1]+nfactor*(eaoi[1]-saoi[1]),
+                               saoi[2]+nfactor*(eaoi[2]-saoi[2]),
+                               saoi[3]+nfactor*(eaoi[3]-saoi[3])]
                 self.emit("position_update", stimnum, current_aoi)
 
         # print self.refresh_timer
