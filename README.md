@@ -20,8 +20,9 @@ presentation module
 * Interface that allows user to monitor the recording devices during the task
 
 ### Platforms
-Drop is developed in python and currently works at least on following platforms
+Drop is developed in python, so technically it should work on any platform which supports python and the required libraries. Currently drop works at least on following platforms
 (compatibility may vary with different os-versions):
+
 * Linux (primary platform, tested on Linux Mint 17)
 * Os X El capitan
 
@@ -95,7 +96,7 @@ An experiment is created by defining list of “sections”. A section is an
 instance, which is created by defining a python-dictionary with certain
 keywords an values. Sections are run on the order of appearance.
 
-The possible keywords are:
+The possible keywords on the section-level are:
 
 * name: identifier of the node [required]
 * mediafolder: string representing media folder [required]
@@ -108,6 +109,29 @@ number
 * aois: list of lists of four elements [x1, x2, y1, y2]
 * permutations: list of lists of order keys that are permuted with the same
 permutation
+
+Trial consists of phases which last for a fixed time or until a data condition
+is met. "trial" is a list of JSON-dicts that contain keywords. The possible
+keywords for phase-level are:
+
+* duration: length of the phase in milliseconds [required]
+* tag: phase identifier [required]
+* extratags: additional tags for this phase
+* stimuli: a list of dicts of stimuli to be played, defined later
+[required]
+
+The possible keywords for stimuli-level are:
+
+* type:"image", "movie" or "sound" [required]
+* id: number or string of the order - corresponds the stimulus position in
+the stimulus list of type [required]
+* aoi: number or string of order representing aoi list position
+[required if image or movie]
+* move: similar to aoi, but where the image is moved during the phase
+* pulsate: pulsation factor: image oscillates at rate 1/pulsate between aoi
+and move(aoi)
+* rotate: rotation speed 1/rotation flips on second, negative for other
+direction
 
 
 #### Example experiment

@@ -46,7 +46,7 @@ class ExperimentStatusView(gtk.DrawingArea):
             self.draw_que[key] = {"type": "aoi", "r": 0, "g": 0, "b": 1,
                                   "o": 1, "aoi": datacondition["aoi"]}
 
-    def on_play_image(self, stmnum, aoi):
+    def on_play_image(self, stmnum, aoi, rotation):
         """Callback for play_image signal."""
         self.draw_que["maoi"+str(stmnum)] = {"type": "aoi", "r": 0, "g": 1,
                                              "b": 0, "o": 1, "aoi": aoi}

@@ -2,6 +2,7 @@
 
 import os
 import random
+import math
 import glib
 from pyee import EventEmitter
 
@@ -30,8 +31,8 @@ class Section(EventEmitter):
 
         # refresh rate seems to not work perfectly (due to a bug in some lib),
         # the number 100 seems to be about 60Hz
-        self.refresh_rate = 100
-        self.refresh_timer = 0
+        self.refresh_rate = 30
+        self.last_refresh = 0
 
         print "Starting section " + sectioninfo["name"] + "..."
 
@@ -175,7 +176,7 @@ class Section(EventEmitter):
             elif i["type"] == "image":
                 aoinum = self.get_order_num(i["aoi"])
                 aoi = self.sectioninfo["aois"][aoinum]
-                self.emit("play_image", stimnum, aoi)
+                self.emit("play_image", stimnum, aoi, 0)
 
             elif i["type"] == "movie":
                 aoinum = self.get_order_num(i["aoi"])
@@ -193,9 +194,10 @@ class Section(EventEmitter):
 
         # start refresh loop
         self.refresh_started = self.timestamp()
-        self.refresh_timer = 0
         refresh_interval = 1000/self.refresh_rate
-        self.refresh_event = glib.timeout_add(refresh_interval, self.refresh)
+    #    self.refresh_event = glib.timeout_add(refresh_interval, self.refresh)
+        self.refresh_event = glib.idle_add(self.refresh)
+        self.last_refresh = self.timestamp()
         self.phase_running = True
 
     def phase_end(self):
@@ -225,25 +227,51 @@ class Section(EventEmitter):
 
     def refresh(self):
         """Update image locations, rotations etc."""
-        self.refresh_timer = self.refresh_timer + 1
-        phaseinfo = self.sectioninfo["trial"][self.phase]
-        factor = (self.timestamp()-self.refresh_started)
-        nfactor = factor*1000/phaseinfo["duration"]
+        # calculate if it's time to run refresh procedure
+        ts = self.timestamp()
+        if ts - self.last_refresh > 1.0/self.refresh_rate:
+            self.last_refresh = ts
 
-        for i in phaseinfo["stimuli"]:
-            stimnum = self.get_order_num(i["id"])
-            if i["type"] == "image" and "rotate" in i:
-                self.emit("rotation_update", stimnum, factor*i["rotate"])
-            if i["type"] == "image" and "move" in i:
-                saoi = self.sectioninfo["aois"][self.get_order_num(i["aoi"])]
-                eaoi = self.sectioninfo["aois"][self.get_order_num(i["move"])]
-                current_aoi = [saoi[0]+nfactor*(eaoi[0]-saoi[0]),
-                               saoi[1]+nfactor*(eaoi[1]-saoi[1]),
-                               saoi[2]+nfactor*(eaoi[2]-saoi[2]),
-                               saoi[3]+nfactor*(eaoi[3]-saoi[3])]
-                self.emit("position_update", stimnum, current_aoi)
+            phaseinfo = self.sectioninfo["trial"][self.phase]
+            phasetime = self.timestamp()-self.refresh_started
 
-        # print self.refresh_timer
+            # process image transitions for each stimuli
+            for s in phaseinfo["stimuli"]:
+                stimnum = self.get_order_num(s["id"])
+                nfactor = phasetime*1000/phaseinfo["duration"]
+
+                if s["type"] == "image":
+                    rotation = 0
+                    saoi = self.sectioninfo["aois"][
+                        self.get_order_num(s["aoi"])]
+                    current_aoi = saoi
+
+                    if "rotate" in s:
+                        rotation = phasetime*s["rotate"]
+                    if "move" in s:
+                        eaoi = self.sectioninfo["aois"][
+                            self.get_order_num(s["move"])]
+
+                        # if the pulsate flag is set, swap start and end aois
+                        if "pulsate" in s:
+                            pf = s["pulsate"]
+
+                            # check if the pulsation is going up or down
+                            if math.sin(phasetime*pf*math.pi) < 0:
+                                # swap start and end aois
+                                store = saoi
+                                saoi = eaoi
+                                eaoi = store
+
+                            nfactor = phasetime % (1.0/pf)*pf
+
+                        current_aoi = [saoi[0]+nfactor*(eaoi[0]-saoi[0]),
+                                       saoi[1]+nfactor*(eaoi[1]-saoi[1]),
+                                       saoi[2]+nfactor*(eaoi[2]-saoi[2]),
+                                       saoi[3]+nfactor*(eaoi[3]-saoi[3])]
+
+                    self.emit("play_image", stimnum, current_aoi, rotation)
+
         return True
 
     def create_tag(self, secondary_tag):

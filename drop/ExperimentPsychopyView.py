@@ -56,8 +56,6 @@ class ExperimentPsychopyView:
         model.on("draw_diagnostics", self.on_draw_diagnostics)
         model.on("add_draw_que", self.on_add_draw_que)
         model.on("draw_que_updated", self.on_draw_que_updated)
-        model.on("rotation_update", self.on_rotation_update)
-        model.on("position_update", self.on_position_update)
 
     def remove_model(self, model):
         """
@@ -75,20 +73,6 @@ class ExperimentPsychopyView:
         model.remove_listener("draw_diagnostics", self.on_draw_diagnostics)
         model.remove_listener("add_draw_que", self.on_add_draw_que)
         model.remove_listener("draw_que_updated", self.on_draw_que_updated)
-        model.remove_listener("rotation_update", self.on_rotation_update)
-        model.remove_listener("position_update", self.on_position_update)
-
-    def on_rotation_update(self, stmnum, rotation):
-        """Callback for rotation_update-signal."""
-        for i in self.playing:
-            if i["type"] == "image" and i["stmnum"] == stmnum:
-                i["rotation"] = rotation
-
-    def on_position_update(self, stmnum, position):
-        """Callback for position_update-signal."""
-        for i in self.playing:
-            if i["type"] == "image" and i["stmnum"] == stmnum:
-                i["position"] = position
 
     def on_draw_diagnostics(self, do_it):
         """Callback for draw_diagnostics signal."""
@@ -116,12 +100,12 @@ class ExperimentPsychopyView:
             hsound = self.load_sound(os.path.join(mediadir, soundf))
             self.soundobjects.append(hsound)
 
-    def on_play_image(self, stimnum, aoi):
+    def on_play_image(self, stimnum, aoi, rotation):
         """Callback for play_image signal."""
-        handle = self.imageobjects[stimnum]
-        self.play_image(handle, aoi)
+        himage = self.imageobjects[stimnum]
+        self.play_image(himage, aoi, rotation)
         self.playing.append({"type": "image", "stmnum": stimnum,
-                             "handle": handle, "rotation": 0, "position": aoi})
+                             "handle": himage})
 
     def on_play_movie(self, stimnum, aoi):
         """Callback for play_movie signal."""
@@ -145,11 +129,6 @@ class ExperimentPsychopyView:
                 if i["type"] == "movie":
                     i["handle"].draw()
                 elif i["type"] == "image":
-                    p_x, p_y, width, height = \
-                        utils.aoi_from_experiment_to_psychopy(i["position"])
-                    i["handle"].pos = (p_x, p_y)
-                    i["handle"].size = [width, height]
-                    i["handle"].setOri(i["rotation"])
                     i["handle"].draw()
 
             if self.draw_diagnostics:
@@ -210,10 +189,10 @@ class ExperimentPsychopyView:
 
     def load_movie(self, window, filepath):
         """Load a moviefile to RAM tied to specified window."""
-        movieobject = visual.MovieStim3(window, filepath, loop=True)
-        movieobject.units = "norm"
+        hmovie = visual.MovieStim3(window, filepath, loop=True)
+        hmovie.units = "norm"
 
-        return movieobject
+        return hmovie
 
     def load_image(self, window, filepath):
         """Load ann imagefile to RAM tied to specified window."""
@@ -223,26 +202,27 @@ class ExperimentPsychopyView:
         """Load a soundfile to RAM."""
         return sound.SoundPygame(value=filepath)
 
-    def play_movie(self, movieobject, aoi):
+    def play_movie(self, hmovie, aoi):
         """Start playing movie."""
         # Transfer to psychopy coordinates (-1->1, 1->-1)
         # from normalized (0->1, 0->1)
         p_x, p_y, width, height = utils.aoi_from_experiment_to_psychopy(aoi)
 
-        movieobject.play()
+        hmovie.play()
 
-        movieobject.pos = (p_x, p_y)
-        movieobject.size = [width, height]
-        movieobject.draw()
+        hmovie.pos = (p_x, p_y)
+        hmovie.size = [width, height]
+        hmovie.draw()
         # stm.autoDraw = True
 
-    def play_image(self, imageobject, aoi):
+    def play_image(self, himage, aoi, angle):
         """Start playing image."""
         p_x, p_y, width, height = utils.aoi_from_experiment_to_psychopy(aoi)
 
-        imageobject.pos = (p_x, p_y)
-        imageobject.size = [width, height]
-        imageobject.draw()
+        himage.pos = (p_x, p_y)
+        himage.size = [width, height]
+        himage.setOri(angle)
+        # himage.draw() # test if it works to put first draw() on refresh loop
         # stm.autoDraw = True
 
     def __del__(self):
