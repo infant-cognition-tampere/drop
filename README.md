@@ -155,7 +155,8 @@ cat stays for 5 seconds (or as long as the leader presses "continue").
         "aois" : [
             [0.0, 1.0, 0.0, 1.0],
             [0.85, 0.95,0.45, 0.55],
-            [0.05, 0.15,0.45, 0.55]
+            [0.05, 0.15,0.45, 0.55],
+            [0.45, 0.55,0.45, 0.55]
         ],
         "options": ["collect_data"],
         "trial": [
@@ -180,6 +181,18 @@ cat stays for 5 seconds (or as long as the leader presses "continue").
                 },
                 "stimuli":[
                     {"type":"image", "id":0, "aoi":0}, {"type":"image", "id":1, "aoi":"aoi_order"}
+                ]
+            },
+            {
+                "duration":2000,
+                "gc_aois":"aoi_order",
+                "tag":"transitions_phase",
+                "extratags":{
+                    "stim": 1,
+                    "aoi" : "aoi_order"
+                },
+                "stimuli":[
+                    {"type":"image", "id":0, "aoi":0}, {"type":"image", "id":1, "aoi":"aoi_order", "rotate":180, "move":3, "pulsate":1}
                 ]
             }
         ]
