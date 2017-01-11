@@ -41,6 +41,7 @@ class DropController(EventEmitter):
         utils.dircheck(self.experimentdir)
         utils.dircheck(self.mediadir)
         utils.dircheck(self.plugindir)
+        utils.dircheck(self.dependenciesdir)
 
         # put the plugins-directory and dependenciesdir to python path
         sys.path.append(self.plugindir)
