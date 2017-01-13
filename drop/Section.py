@@ -17,7 +17,8 @@ class Section(EventEmitter):
     def __init__(self, mediapath, sectioninfo, on_destroy, timestamp):
         """Constructor."""
         # run the superclass constructor
-        super(Section, self).__init__()
+        # super(Section, self).__init__()
+        EventEmitter.__init__(self)
 
         self.timestamp = timestamp
         self.stopme = False
