@@ -193,8 +193,8 @@ class DPV:
                                    gtk.RESPONSE_REJECT, "Abort experiment",
                                    gtk.RESPONSE_CLOSE),
                                   [self.ctrl.start_section,
-                                  self.ctrl.start_section,
-                                  self.ctrl.start_section],
+                                   self.ctrl.start_section,
+                                   self.ctrl.start_section],
                                   [csection+1, csection, lensection])
         else:
             self.show_message_box("Section " + str(csection + 1) + "/" +
@@ -204,7 +204,7 @@ class DPV:
                                    "Rerun previous section",
                                    gtk.RESPONSE_REJECT),
                                   [self.ctrl.start_section,
-                                  self.ctrl.start_section],
+                                   self.ctrl.start_section],
                                   [lensection, csection])
 
     def on_experiment_started(self):
