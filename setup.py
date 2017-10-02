@@ -113,7 +113,6 @@ setup(
     tests_require=['nose2',
                    'unittest2',
                    'pep8',
-                   'flake8',
-                   'flake8-pep257'],
+                   'flake8'],  # TODO: Add flake8_docstring here
     test_suite='nose2.collector.collector',
 )
