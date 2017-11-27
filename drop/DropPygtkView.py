@@ -269,7 +269,7 @@ class DPV:
 
         try:
             self.display_experiment_information(self.mediadir, exinfo)
-        except:
+        except Exception:
             self.show_message_box(message="A possible error in the script. " +
                                   "Check exfile JSON-syntax with e.g. " +
                                   "online-JSON syntax tester.")

@@ -197,7 +197,7 @@ class ExperimentPsychopyView:
 
     def load_sound(self, filepath):
         """Load a soundfile to RAM."""
-        return sound.SoundPygame(value=filepath)
+        return sound.Sound(value=filepath)
 
     def play_movie(self, movieobject, aoi):
         """Start playing movie."""

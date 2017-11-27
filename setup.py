@@ -22,7 +22,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='drop',
-    version='0.0.1',
+    version='0.0.3',
     description='Data Recording Open-source Project',
     long_description=long_description,
     url='https://github.com/infant-cognition-tampere/drop',
@@ -113,7 +113,6 @@ setup(
     tests_require=['nose2',
                    'unittest2',
                    'pep8',
-                   'flake8',
-                   'flake8-pep257'],
+                   'flake8'],  # TODO: Add flake8_docstring here
     test_suite='nose2.collector.collector',
 )

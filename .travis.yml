@@ -11,7 +11,7 @@ before_install:
 install:
   - conda install --yes python=$TRAVIS_PYTHON_VERSION atlas numpy scipy flake8
   - conda install --yes -c tlatorre pygame=1.9.2
-  - pip install python-coveralls nose-cov unittest2 flake8-pep257
+  - pip install python-coveralls nose-cov unittest2 #TODO: Add flake8_docstrings
   - bash -c 'if [ "$TRAVIS_PYTHON_VERSION" == "2.7" ]; then pip install functools32; fi'
   - pip install -e .
 # command to run tests
