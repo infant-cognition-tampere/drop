@@ -34,7 +34,7 @@ class DropController(EventEmitter):
         self.experimentdir = os.path.join(drop_home, "experiments")
         self.mediadir = os.path.join(drop_home, "media")
         self.plugindir = os.path.join(drop_home, "plugins")
-        self.dependenciesdir = os.path.join(drop_home, "dependencies") 
+        self.dependenciesdir = os.path.join(drop_home, "dependencies")
 
         # check that saving, experiment etc directories are present
         utils.dircheck(self.savedir)
