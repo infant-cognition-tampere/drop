@@ -195,9 +195,11 @@ class DropController(EventEmitter):
         # load experiment data from JSON-dictlist
         experiment_data = self.get_experiment_information()
 
-        # initialize the experiment object
+        # initialize the experiment object, resolution is here taken from
+        # the first section of the experiment (assuming experiment not empty).
         from ExperimentPsychopyView import ExperimentPsychopyView
-        self.exp_view = ExperimentPsychopyView(debug)
+        resolution = experiment_data[0]["resolution"]
+        self.exp_view = ExperimentPsychopyView(debug, resolution)
         self.experiment = Experiment([self.exp_view, self.ec.trackstatus],
                                      self, experiment_data,
                                      self.experiment_file, self.mediadir,
