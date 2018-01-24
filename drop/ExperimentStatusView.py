@@ -102,18 +102,30 @@ class ExperimentStatusView(gtk.DrawingArea):
                 ctx.set_source_rgba(item["r"], item["g"], item["b"], item["o"])
 
             itype = item["type"]
-            if itype == "aoi" or itype == "rect":
+            if itype == "rect":
                 # get all the extra information to be presented
                 aoi = utils.aoi_from_experiment_to_cairo(item["aoi"])
 
                 # draw the rectangle
                 ctx.rectangle(aoi[0], aoi[1], aoi[2], aoi[3])
+                ctx.fill()
 
-                # decide if fill
-                if itype == "aoi":
+            elif itype == "aoi":
+
+                # check if aoi is circular or rect
+                if len(item["aoi"]) == 3:
+                    # circle
+                    ctx.arc(item["aoi"][0], item["aoi"][1], item["aoi"][2],
+                            0, 2 * math.pi)
                     ctx.stroke()
                 else:
-                    ctx.fill()
+                    # rectangular
+                    # get all the extra information to be presented
+                    aoi = utils.aoi_from_experiment_to_cairo(item["aoi"])
+
+                    # draw the rectangle
+                    ctx.rectangle(aoi[0], aoi[1], aoi[2], aoi[3])
+                    ctx.stroke()
 
             elif itype == "circle":
                 ctx.arc(item["x"], item["y"], item["radius"], 0, 2 * math.pi)
