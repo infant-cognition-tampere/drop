@@ -1,5 +1,6 @@
 """DropController-class."""
 
+import sys
 import os
 import time
 import glib
@@ -26,18 +27,25 @@ class DropController(EventEmitter):
         self.experiment = None
 
         # define important directories for external (not program code) files
-        homedir = os.environ['HOME']
+        homedir = os.environ["HOME"]
         drop_home = os.path.join(homedir, "Documents", "drop_data")
         self.rootdir = drop_home
         self.savedir = os.path.join(drop_home, "recordings")
-        self.experimentdir = os.path.join(drop_home, 'experiments')
-        self.mediadir = os.path.join(drop_home, 'media')
-        self.plugindir = os.path.join(drop_home, 'plugins')
+        self.experimentdir = os.path.join(drop_home, "experiments")
+        self.mediadir = os.path.join(drop_home, "media")
+        self.plugindir = os.path.join(drop_home, "plugins")
+        self.dependenciesdir = os.path.join(drop_home, "dependencies")
 
         # check that saving, experiment etc directories are present
         utils.dircheck(self.savedir)
         utils.dircheck(self.experimentdir)
         utils.dircheck(self.mediadir)
+        utils.dircheck(self.plugindir)
+        utils.dircheck(self.dependenciesdir)
+
+        # put the plugins-directory and dependenciesdir to python path
+        sys.path.append(self.plugindir)
+        sys.path.append(self.dependenciesdir)
 
         # temporary? keyboard-contigency list
         self.keyboard_contigency = []
