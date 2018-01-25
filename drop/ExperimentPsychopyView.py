@@ -9,9 +9,9 @@ from psychopy import visual, sound
 class ExperimentPsychopyView:
     """Psychopy-view for the experiment-instance."""
 
-    def __init__(self, debug):
+    def __init__(self, debug, res):
         """Constructor."""
-        self.window = self.create_window(debug)
+        self.window = self.create_window(debug, res)
 
         self.playing = []
         self.stopped = False
@@ -173,9 +173,8 @@ class ExperimentPsychopyView:
                                        alignHoriz="center", alignVert="center")
                 htxt.draw()
 
-    def create_window(self, debug):
+    def create_window(self, debug, res):
         """Create a window for the experiment. Debug[bool]:windowed mode."""
-        res = [1024, 768]
         res_ratio = float(res[1])/float(res[0])
 
         if debug:
