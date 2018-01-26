@@ -207,7 +207,10 @@ class DropController(EventEmitter):
         # the first section of the experiment (assuming experiment not empty).
         from ExperimentPsychopyView import ExperimentPsychopyView
         resolution = experiment_data[0]["resolution"]
-        self.exp_view = ExperimentPsychopyView(debug, resolution)
+        bgcolor = experiment_data[0]["bgcolor"]
+        position = experiment_data[0]["position"]
+        self.exp_view = ExperimentPsychopyView(debug, resolution, bgcolor,
+                                               position)
         self.experiment = Experiment([self.exp_view, self.ec.trackstatus],
                                      self, experiment_data,
                                      self.experiment_file, self.mediadir,

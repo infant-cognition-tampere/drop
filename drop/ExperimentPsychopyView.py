@@ -9,9 +9,9 @@ from psychopy import visual, sound
 class ExperimentPsychopyView:
     """Psychopy-view for the experiment-instance."""
 
-    def __init__(self, debug, res):
+    def __init__(self, debug, res, bgcolor, position):
         """Constructor."""
-        self.window = self.create_window(debug, res)
+        self.window = self.create_window(debug, res, bgcolor, position)
 
         self.playing = []
         self.stopped = False
@@ -173,7 +173,7 @@ class ExperimentPsychopyView:
                                        alignHoriz="center", alignVert="center")
                 htxt.draw()
 
-    def create_window(self, debug, res):
+    def create_window(self, debug, res, bgcolor, position):
         """Create a window for the experiment. Debug[bool]:windowed mode."""
         res_ratio = float(res[1])/float(res[0])
 
@@ -181,7 +181,8 @@ class ExperimentPsychopyView:
             return visual.Window(size=(500, res_ratio*500), pos=(200, 300))
         else:
             return visual.Window(screen=1,  size=(res[0], res[1]),
-                                 fullscr=True, allowGUI=False)
+                                 allowGUI=False, color=bgcolor,
+                                 pos=position)
 
     def load_movie(self, window, filepath):
         """Load a moviefile to RAM tied to specified window."""
