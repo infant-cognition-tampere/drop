@@ -86,3 +86,43 @@ def aoi_from_experiment_to_psychopy(aoi):
     psychopy_x, psychopy_y = to_psychopy_coord(posx, posy)
 
     return([psychopy_x, psychopy_y, width*2, height*2])
+
+
+def recursive_indexing(indstr, hashtable, index):
+    """
+    Recursive indexing with a string pointing dict. Delimiter "->"
+    No nested indexing.
+    indstr = pointer string e.g. "a->b->c" cut by split("->") to list of str
+    hashtable = "dictionary" that contains the variables and tables
+    index = number, that indexes the list in hashtable where pointer points
+    """
+
+    if len(indstr) == 1:
+
+        htelement = hashtable[indstr[0]]
+        # process if the htelement is a list or constant..
+        # list returns list element [index], constant returns constant
+        if type(htelement) is list:
+            return htelement[index]
+        else:
+            return htelement
+    else:
+        string = indstr.pop(0)
+        if string.isdigit():
+            # the string was a number -> reference with the number
+            newindex = int(string)
+        else:
+            newindex = hashtable[string][index]
+
+        return recursive_indexing(indstr, hashtable, newindex)
+
+
+def list_depth(l):
+    """ Returns the depth of the FIRST (0) element of lists inside lists."""
+    if type(l) is list:
+        if len(l) > 0:
+            return 1 + list_depth(l[0])
+        else:
+            return 1
+    else:
+        return 0
