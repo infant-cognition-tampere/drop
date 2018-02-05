@@ -61,7 +61,7 @@ class Experiment:
         sectioninfo = self.data[self.section_num]
 
         # generate the object for the next section
-        self.section = Section(self.mediadir, sectioninfo, self.on_section_end,
+        self.section = Section(self.mediadir, sectioninfo.copy(), self.on_section_end,
                                self.ctrl.timestamp)
         self.ctrl.add_model(self.section)
 
