@@ -210,7 +210,7 @@ class Section(EventEmitter):
             glib.idle_add(self.trial_end)
             return False
 
-        glib.idle_add(self.phase_start, priority=glib.PRIORITY_HIGH)
+        glib.idle_add(self.phase_start, self.trial, priority=glib.PRIORITY_HIGH)
         return False
 
     def create_tag(self, secondary_tag, trial):
