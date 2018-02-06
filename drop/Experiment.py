@@ -99,7 +99,6 @@ class Experiment:
         """Destructor for the experiment class."""
         for view in self.views:
             view.stop()
-            view.remove_model(self.section)
         self.views = None
 
         print "Experiment finished."
