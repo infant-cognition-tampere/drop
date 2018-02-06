@@ -3,6 +3,10 @@
 set -e
 
 echo "Drop Installer script"
+echo ''
+
+USERNAME=$(id -u -n)
+test "$USERNAME" = "root" && echo "Please do not run the installer script as root" && exit 1
 
 echo "First installing few packages with apt-get as root"
 sudo \
