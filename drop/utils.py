@@ -90,13 +90,14 @@ def aoi_from_experiment_to_psychopy(aoi):
 
 def recursive_indexing(indstr, hashtable, index):
     """
-    Recursive indexing with a string pointing dict. Delimiter "->"
+    Recursive indexing with a string pointing dict.
+
+    Delimiter "->"
     No nested indexing.
     indstr = pointer string e.g. "a->b->c" cut by split("->") to list of str
     hashtable = "dictionary" that contains the variables and tables
     index = number, that indexes the list in hashtable where pointer points
     """
-
     if len(indstr) == 1:
 
         htelement = hashtable[indstr[0]]
@@ -118,7 +119,7 @@ def recursive_indexing(indstr, hashtable, index):
 
 
 def list_depth(l):
-    """ Returns the depth of the FIRST (0) element of lists inside lists."""
+    """Return the depth of the FIRST (0) element of lists inside lists."""
     if type(l) is list:
         if len(l) > 0:
             return 1 + list_depth(l[0])

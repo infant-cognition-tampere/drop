@@ -124,7 +124,7 @@ class Section(EventEmitter):
         for key in extratags:
             misc = misc + key[0:5] + ":" +\
                    str(self.parse_script_input(extratags[key], self.trial)) +\
-                       " "
+                   " "
 
         self.emit("trial_completed", self.sectioninfo["name"], self.trial,
                   self.sectioninfo["trialcount"], misc)
@@ -210,7 +210,8 @@ class Section(EventEmitter):
             glib.idle_add(self.trial_end)
             return False
 
-        glib.idle_add(self.phase_start, self.trial, priority=glib.PRIORITY_HIGH)
+        glib.idle_add(self.phase_start, self.trial,
+                      priority=glib.PRIORITY_HIGH)
         return False
 
     def create_tag(self, secondary_tag, trial):
@@ -226,14 +227,15 @@ class Section(EventEmitter):
 
         # Add extra tags
         for t in phaseinfo["extratags"]:
-            tag[str(t)] = str(self.parse_script_input(phaseinfo["extratags"][t], trial))
+            tag[str(t)] = str(self.parse_script_input(
+                          phaseinfo["extratags"][t], trial))
 
         return tag
 
     def parse_script_input(self, ind, trial):
-
+        """Return information where the ind is pointing in "trial" trial."""
         return utils.recursive_indexing(ind.split("->"),
-                                 self.sectioninfo, trial)
+                                        self.sectioninfo, trial)
 
     def stop(self):
         """Method that stops the section execution."""
