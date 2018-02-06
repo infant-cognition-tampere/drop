@@ -72,6 +72,9 @@ class Experiment:
 
     def on_section_end(self):
         """Callback for section_end."""
+        for view in self.views:
+            view.remove_model(self.section)
+
         self.section = None
         sectioninfo = self.data[self.section_num]
 
@@ -96,6 +99,7 @@ class Experiment:
         """Destructor for the experiment class."""
         for view in self.views:
             view.stop()
-            self.views = None
+            view.remove_model(self.section)
+        self.views = None
 
         print "Experiment finished."

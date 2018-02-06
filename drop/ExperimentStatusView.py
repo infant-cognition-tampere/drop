@@ -34,6 +34,18 @@ class ExperimentStatusView(gtk.DrawingArea):
         model.on("add_draw_que", self.add_draw_que)
         model.on("trial_completed", self.on_trial_completed)
 
+    def remove_model(self, model):
+        """Add a model to the view."""
+        model.remove_listener("play_image", self.on_play_image)
+        model.remove_listener("play_movie", self.on_play_movie)
+        model.remove_listener("data_condition_added",
+                              self.on_data_condition_added)
+        # model.remove_listener("clear_draw_que", self.on_clear_draw_que)
+        model.remove_listener("draw_que_updated", self.clear_draw_que)
+        model.remove_listener("phase_ended", self.clear_draw_que)
+        model.remove_listener("add_draw_que", self.add_draw_que)
+        model.remove_listener("trial_completed", self.on_trial_completed)
+
     def on_trial_completed(self, a, b, c, d):
         """Callback for the trial_completed signal."""
         self.draw_que = {}
