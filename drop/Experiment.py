@@ -61,8 +61,8 @@ class Experiment:
         sectioninfo = self.data[self.section_num]
 
         # generate the object for the next section
-        self.section = Section(self.mediadir, sectioninfo, self.on_section_end,
-                               self.ctrl.timestamp)
+        self.section = Section(self.mediadir, sectioninfo.copy(),
+                               self.on_section_end, self.ctrl.timestamp)
         self.ctrl.add_model(self.section)
 
         for view in self.views:
@@ -72,6 +72,9 @@ class Experiment:
 
     def on_section_end(self):
         """Callback for section_end."""
+        for view in self.views:
+            view.remove_model(self.section)
+
         self.section = None
         sectioninfo = self.data[self.section_num]
 
@@ -96,6 +99,6 @@ class Experiment:
         """Destructor for the experiment class."""
         for view in self.views:
             view.stop()
-            self.views = None
+        self.views = None
 
         print "Experiment finished."

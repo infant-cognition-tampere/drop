@@ -80,41 +80,41 @@ class ExperimentPsychopyView:
 
     def on_imagefiles_added(self, mediadir, files):
         """Load list of imagefiles to RAM."""
-        self.imageobjects = []
+        self.imageobjects = {}
         for imagef in files:
             himg = self.load_image(self.window, os.path.join(mediadir, imagef))
-            self.imageobjects.append(himg)
+            self.imageobjects[imagef] = himg
 
     def on_moviefiles_added(self, mediadir, files):
         """Load list of moviefiles to RAM."""
-        self.movieobjects = []
+        self.movieobjects = {}
         for movief in files:
             hmovie = self.load_movie(self.window,
                                      os.path.join(mediadir, movief))
-            self.movieobjects.append(hmovie)
+            self.movieobjects[movief] = hmovie
 
     def on_soundfiles_added(self, mediadir, files):
         """Load list of soundfiles to RAM."""
-        self.soundobjects = []
+        self.soundobjects = {}
         for soundf in files:
             hsound = self.load_sound(os.path.join(mediadir, soundf))
-            self.soundobjects.append(hsound)
+            self.soundobjects[soundf] = hsound
 
-    def on_play_image(self, stimnum, aoi):
+    def on_play_image(self, stimname, aoi):
         """Callback for play_image signal."""
-        stm = self.imageobjects[stimnum]
+        stm = self.imageobjects[stimname]
         self.play_image(stm, aoi)
         self.playing.append(stm)
 
-    def on_play_movie(self, stimnum, aoi):
+    def on_play_movie(self, stimname, aoi):
         """Callback for play_movie signal."""
-        stm = self.movieobjects[stimnum]
+        stm = self.movieobjects[stimname]
         self.play_movie(stm, aoi)
         self.playing.append(stm)
 
-    def on_play_sound(self, stimnum):
+    def on_play_sound(self, stimname):
         """Callback for play_sound signal."""
-        stm = self.soundobjects[stimnum]
+        stm = self.soundobjects[stimname]
         stm.play()
         self.playing.append(stm)
 
@@ -178,7 +178,8 @@ class ExperimentPsychopyView:
         res_ratio = float(res[1])/float(res[0])
 
         if debug:
-            return visual.Window(size=(500, res_ratio*500), pos=(200, 300))
+            return visual.Window(size=(500, res_ratio*500), pos=(200, 300),
+                                 color=bgcolor)
         else:
             return visual.Window(screen=1,  size=(res[0], res[1]),
                                  allowGUI=False, color=bgcolor,

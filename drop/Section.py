@@ -3,6 +3,7 @@
 import os
 import random
 import glib
+import utils
 from pyee import EventEmitter
 
 
@@ -23,6 +24,14 @@ class Section(EventEmitter):
         self.mediadir = os.path.join(mediapath, sectioninfo["mediafolder"])
         self.trial = 0
         self.phase_running = False
+
+        # if the aoi-list is list of lists, choose randomly one list and
+        # replace "aois" with that list.
+        # TODO: make more general later
+        if utils.list_depth(sectioninfo["aois"]) > 2:
+            aoilist = random.randrange(0, len(sectioninfo["aois"]))
+            sectioninfo["aois"] = sectioninfo["aois"][aoilist]
+            sectioninfo["aoilist"] = aoilist
 
         self.sectioninfo = sectioninfo
         self.on_destroy = on_destroy
@@ -65,7 +74,7 @@ class Section(EventEmitter):
             for perm in sectioninfo["permutations"]:
 
                 # check the length of the first list in the permutation que
-                listlen = len(sectioninfo["orders"][perm[0]])
+                listlen = len(sectioninfo[perm[0]])
 
                 # make a range from 0..listlen
                 newordernums = range(0, listlen)
@@ -76,7 +85,7 @@ class Section(EventEmitter):
                 # for each order to be permutated in this round
                 for order in perm:
 
-                    old_order = sectioninfo["orders"][order]
+                    old_order = sectioninfo[order]
                     new_order = old_order[:]
 
                     k = 0
@@ -84,30 +93,26 @@ class Section(EventEmitter):
                         new_order[k] = old_order[j]
                         k = k + 1
 
-                    sectioninfo["orders"][order] = new_order
+                    sectioninfo[order] = new_order
 
-        if "orders" in sectioninfo:
+        if "additions" in sectioninfo:
             # after permutations, perform the "list addition operations"
-            orders = sectioninfo["orders"]
-            for o in orders:
-                if not isinstance(orders[o], list):
-                    # order is not a list -> order is assumed to be
-                    # concatenation of lists
+            additions = sectioninfo["additions"]
+            for a in additions:
+                lists = additions[a].split("+")
 
-                    lists = orders[o].split("+")
+                newlist = []
+                for l in lists:
+                    newlist = newlist + sectioninfo[l.strip()]
 
-                    newlist = []
-                    for l in lists:
-                        newlist = newlist + orders[l.strip()]
-
-                    # put concatenated list on top of the other
-                    orders[o] = newlist
+                # put concatenated list on top of the other
+                sectioninfo[a] = newlist
 
     def trial_start(self):
         """Start the prepared trial."""
         self.phase = -1
         self.emit("trial_started", self.trial, self.sectioninfo["trialcount"])
-        glib.idle_add(self.phase_start)
+        glib.idle_add(self.phase_start, self.trial)
         return False
 
     def trial_end(self):
@@ -115,10 +120,11 @@ class Section(EventEmitter):
         # construct the informative text to display to user,
         # needs info from orders too
         misc = ""
-        for key in self.sectioninfo["trial"][-1]["extratags"]:
-            misc = misc + key[0:5] + ":" + str(
-                self.get_order_num(
-                    self.sectioninfo["trial"][-1]["extratags"][key])) + " "
+        extratags = self.sectioninfo["trial"][-1]["extratags"]
+        for key in extratags:
+            misc = misc + key[0:5] + ":" +\
+                   str(self.parse_script_input(extratags[key], self.trial)) +\
+                   " "
 
         self.emit("trial_completed", self.sectioninfo["name"], self.trial,
                   self.sectioninfo["trialcount"], misc)
@@ -134,7 +140,7 @@ class Section(EventEmitter):
             glib.idle_add(self.trial_start)
             return False
 
-    def phase_start(self):
+    def phase_start(self, trial):
         """Perform actions when a new phase starts."""
         self.phase += 1
         phaseinfo = self.sectioninfo["trial"][self.phase]
@@ -146,8 +152,7 @@ class Section(EventEmitter):
 
             # get the corresponding aois to list and put it in the tracstatus
             for i in aoinums:
-                aoi = self.sectioninfo["aois"][self.get_order_num(i)]
-                # self.emit("gc_aoi_added", i, aoi)
+                aoi = self.parse_script_input(i, trial)
                 self.emit("data_condition_added", {"type": "aoi",
                                                    "inorout": "in",
                                                    "aoi": aoi})
@@ -162,24 +167,21 @@ class Section(EventEmitter):
         # initialize all the stimuli for this block
         for i in phaseinfo["stimuli"]:
 
-            stimnum = self.get_order_num(i["id"])
+            stimnum = self.parse_script_input(i["id"], trial)
 
             if i["type"] == "sound":
                 self.emit("play_sound", stimnum)
 
             elif i["type"] == "image":
-                aoinum = self.get_order_num(i["aoi"])
-                aoi = self.sectioninfo["aois"][aoinum]
+                aoi = self.parse_script_input(i["aoi"], trial)
                 self.emit("play_image", stimnum, aoi)
 
             elif i["type"] == "movie":
-                aoinum = self.get_order_num(i["aoi"])
-                aoi = self.sectioninfo["aois"][aoinum]
-
+                aoi = self.parse_script_input(i["aoi"], trial)
                 self.emit("play_movie", stimnum, aoi)
 
         # send start tag for the phase
-        self.emit("tag", self.create_tag("start"))
+        self.emit("tag", self.create_tag("start", trial))
 
         if "duration" in phaseinfo:
             phase_duration = phaseinfo["duration"]
@@ -200,7 +202,7 @@ class Section(EventEmitter):
         self.emit("phase_ended")
 
         # send end tag for the phase
-        self.emit("tag", self.create_tag("end"))
+        self.emit("tag", self.create_tag("end", self.trial))
 
         if self.phase == len(self.sectioninfo["trial"])-1 or self.stopme:
             # last phase completed
@@ -208,10 +210,11 @@ class Section(EventEmitter):
             glib.idle_add(self.trial_end)
             return False
 
-        glib.idle_add(self.phase_start, priority=glib.PRIORITY_HIGH)
+        glib.idle_add(self.phase_start, self.trial,
+                      priority=glib.PRIORITY_HIGH)
         return False
 
-    def create_tag(self, secondary_tag):
+    def create_tag(self, secondary_tag, trial):
         """Create a tag-dict with timestamp and state information."""
         timestamp = self.timestamp()
         phaseinfo = self.sectioninfo["trial"][self.phase]
@@ -220,31 +223,19 @@ class Section(EventEmitter):
         tag["id"] = str(phaseinfo["tag"])
         tag["timestamp"] = timestamp
         tag["secondary_id"] = str(secondary_tag)
-        tag["trialnumber"] = str(self.trial)
+        tag["trialnumber"] = str(trial)
 
         # Add extra tags
         for t in phaseinfo["extratags"]:
-            tag[str(t)] = str(self.get_order_num(phaseinfo["extratags"][t]))
+            tag[str(t)] = str(self.parse_script_input(
+                          phaseinfo["extratags"][t], trial))
 
         return tag
 
-    def get_order_num(self, testvalue):
-        """
-        Get order num from string or int input.
-
-        Return integer: if testvalue was integer -> return testvalue
-        if testvalue was string -> returns an integer that is recovered
-        from orders with key testvalue and current trial as an index.
-        """
-        value = str(testvalue)
-        if value == "none" or value == "None":
-            return None
-        elif value.isdigit():
-            # value was defined with a digit
-            return int(value)
-        else:
-            # value was defined with a string pointing to orders
-            return self.sectioninfo["orders"][value][self.trial]
+    def parse_script_input(self, ind, trial):
+        """Return information where the ind is pointing in "trial" trial."""
+        return utils.recursive_indexing(ind.split("->"),
+                                        self.sectioninfo, trial)
 
     def stop(self):
         """Method that stops the section execution."""
