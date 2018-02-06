@@ -72,7 +72,6 @@ class Experiment:
 
     def on_section_end(self):
         """Callback for section_end."""
-
         for view in self.views:
             view.remove_model(self.section)
 

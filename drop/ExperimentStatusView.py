@@ -38,7 +38,8 @@ class ExperimentStatusView(gtk.DrawingArea):
         """Add a model to the view."""
         model.remove_listener("play_image", self.on_play_image)
         model.remove_listener("play_movie", self.on_play_movie)
-        model.remove_listener("data_condition_added", self.on_data_condition_added)
+        model.remove_listener("data_condition_added",
+                              self.on_data_condition_added)
         # model.remove_listener("clear_draw_que", self.on_clear_draw_que)
         model.remove_listener("draw_que_updated", self.clear_draw_que)
         model.remove_listener("phase_ended", self.clear_draw_que)
