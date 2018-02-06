@@ -22,8 +22,8 @@ presentation module
 ### Platforms
 Drop is developed in python and currently works at least on following platforms
 (compatibility may vary with different os-versions):
-* Linux (primary platform, tested on Linux Mint 17)
-* Os X El capitan
+* Linux (primary platform, tested on Linux Mint 17) (Vagrant config and installer script included for Ubuntu 16.04 LTS (Xenial). Simply install Vagrant and run 'vagrant up' on cloned git repository directory to test. User ubuntu's password is set to 'drop' in virtual machine config.)
+* MacOS High Sierra
 
 ### License
 drop uses MIT licence.

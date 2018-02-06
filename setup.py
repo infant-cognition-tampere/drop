@@ -12,6 +12,7 @@ from setuptools import setup, find_packages
 # To use a consistent encoding
 from codecs import open
 from os import path
+import platform
 
 # Path to here to find README
 here = path.abspath(path.dirname(__file__))
@@ -75,7 +76,12 @@ setup(
     install_requires=['numpy',
                       'scipy',
                       'pyee',
-                      'PsychoPy',
+                      # FIXME: Maybe remove this later if PsychoPy developers
+                      # fix their broken packaging. Newest PsychoPy requires
+                      # Mac OS X specific packages on all operating systems
+                      # ffs.
+                      'PsychoPy==1.85.3' if platform.system() == 'Linux' \
+                              else 'PsychoPy',
                       'pyglet',
                       'pillow',
                       'pygame',
