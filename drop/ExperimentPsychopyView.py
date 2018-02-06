@@ -178,7 +178,8 @@ class ExperimentPsychopyView:
         res_ratio = float(res[1])/float(res[0])
 
         if debug:
-            return visual.Window(size=(500, res_ratio*500), pos=(200, 300))
+            return visual.Window(size=(500, res_ratio*500), pos=(200, 300),
+                                 color=bgcolor)
         else:
             return visual.Window(screen=1,  size=(res[0], res[1]),
                                  allowGUI=False, color=bgcolor,
