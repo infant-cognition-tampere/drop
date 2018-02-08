@@ -19,6 +19,9 @@ apt-get -y install git build-essential \
 echo "Installing Drop from Github with pip"
 pip install https://github.com/infant-cognition-tampere/drop/archive/master.zip
 
+echo "Installing FFmpeg binary for imageio (dependency of PsychoPy)"
+python -c 'import imageio; imageio.plugins.ffmpeg.download()'
+
 echo ''
 echo 'Drop should be now installed to the PATH.'
 echo 'You should be now able to run drop from terminal with command "drop"'
