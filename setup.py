@@ -86,7 +86,9 @@ setup(
                       'pillow',
                       'pygame',
                       'moviepy',
-                      'yapsy'],
+                      'yapsy',
+                      'configobj',
+                      'json_tricks'],
 
     # List additional groups of dependencies here (e.g. development
     # dependencies). You can install these using the following syntax,
