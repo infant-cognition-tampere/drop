@@ -65,27 +65,27 @@ class DropController(EventEmitter):
         plugin_info = self.pluginmanager.getPluginByName(sensor_name)
         plugin_info.plugin_object.get_sensor(self.rootdir,
                                              self.savedir,
-                                             self.on_recorder_created,
-                                             self.on_recorder_error)
+                                             self.on_sensor_created,
+                                             self.on_sensor_error)
 
     def get_sensors(self):
         """Return list of sensors."""
         return self.sensors
 
-    def on_recorder_error(self, msg):
+    def on_sensor_error(self, msg):
         """Sensor error-handler."""
         self.emit("error", msg)
 
-    def on_recorder_created(self, rhandle):
+    def on_sensor_created(self, rhandle):
         """Callback for sensor initialization."""
         self.sensors.append(rhandle)
-        self.ec.add_recorder(rhandle)
+        self.ec.add_sensor(rhandle)
         self.emit("sensorcount_changed")
 
-        # add model to hear calls from recorders, such as data_condition met
+        # add model to hear calls from sensors, such as data_condition met
         self.add_model(rhandle)
 
-    def recorder_action(self, sensor_id, action_id):
+    def sensor_action(self, sensor_id, action_id):
         """Perform action that is listed on sensors control elements."""
         for sensor in self.sensors:
             if sensor.get_sensor_id() == sensor_id:

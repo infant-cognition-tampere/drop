@@ -89,17 +89,17 @@ class DPV:
         self.id_entryhbox.pack_start(self.idlabel, expand=False)
         self.id_entryhbox.pack_start(self.id_entry, expand=False)
 
-        self.recorders_vbox = gtk.VBox(homogeneous=False)
-        self.recorder_scrollable = gtk.ScrolledWindow()
-        self.recorder_scrollable.set_policy(gtk.POLICY_NEVER,
-                                            gtk.POLICY_AUTOMATIC)
-        self.recorder_scrollable.add_with_viewport(self.recorders_vbox)
+        self.sensors_vbox = gtk.VBox(homogeneous=False)
+        self.sensor_scrollable = gtk.ScrolledWindow()
+        self.sensor_scrollable.set_policy(gtk.POLICY_NEVER,
+                                          gtk.POLICY_AUTOMATIC)
+        self.sensor_scrollable.add_with_viewport(self.sensors_vbox)
 
-        self.recorders_label = gtk.Label()
-        self.recorders_label.set_alignment(0.0, 0.5)
-        self.recorders_label.set_markup("<b>Active sensors:</b>")
+        self.sensors_label = gtk.Label()
+        self.sensors_label.set_alignment(0.0, 0.5)
+        self.sensors_label.set_markup("<b>Active sensors:</b>")
 
-        self.recorders_vbox.pack_end(self.addsensorbutton, expand=False)
+        self.sensors_vbox.pack_end(self.addsensorbutton, expand=False)
 
         self.trackstatus_label = gtk.Label()
         self.trackstatus_label.set_markup("<b>Observation display:</b>")
@@ -125,12 +125,12 @@ class DPV:
                           xoptions=gtk.FILL, yoptions=gtk.FILL)
         self.table.attach(self.vbox_exp, 0, 1, 1, 2)
         self.table.attach(self.trackstatus, 1, 2, 1, 2)
-        self.table.attach(self.recorders_label, 0, 1, 2, 3, xoptions=gtk.FILL,
+        self.table.attach(self.sensors_label, 0, 1, 2, 3, xoptions=gtk.FILL,
                           yoptions=gtk.FILL)
         self.table.attach(self.expstatus_label, 1, 2, 2, 3, xoptions=gtk.FILL,
                           yoptions=gtk.FILL)
         self.table.attach(self.scrol_tree_status, 1, 2, 3, 4)
-        self.table.attach(self.recorder_scrollable, 0, 1, 3, 4)
+        self.table.attach(self.sensor_scrollable, 0, 1, 3, 4)
 
         self.buttonbar = gtk.HButtonBox()
         self.buttonbar.set_border_width(0)
@@ -225,8 +225,8 @@ class DPV:
         """Callback for addeeg-button."""
         self.show_plugin_finder()
 
-    def add_recorder(self, rhandle):
-        """Recorder addition involving gui creation."""
+    def add_sensor(self, rhandle):
+        """Sensor addition involving gui creation."""
         device_id = rhandle.get_sensor_id()
         gui_elements = rhandle.get_control_elements()
 
@@ -243,22 +243,22 @@ class DPV:
         for ge in gui_elements:
             if ge["type"] == "button":
                 newbutton = gtk.Button(ge["id"])
-                newbutton.connect("clicked", self.recorder_button_callback,
+                newbutton.connect("clicked", self.sensor_button_callback,
                                   device_id, ge["id"])
                 hvbox.pack_end(newbutton)
 
-        self.recorders_vbox.pack_start(hvbox, expand=False)
+        self.sensors_vbox.pack_start(hvbox, expand=False)
         self.window.show_all()
         self.trackstatus.add_model(rhandle)
 
-    def recorder_button_callback(self, button, device_id, button_id):
-        """Callback for recorder_button pressed-signal."""
-        self.ctrl.recorder_action(device_id, button_id)
+    def sensor_button_callback(self, button, device_id, button_id):
+        """Callback for sensor_button pressed-signal."""
+        self.ctrl.sensor_action(device_id, button_id)
 
     def remove_sensor(self, button, device_id, hvbox):
         """Callback for the remove_sensor button(s). Parameter:buttonhandle."""
         self.ctrl.remove_sensor(device_id)
-        self.recorders_vbox.remove(hvbox)
+        self.sensors_vbox.remove(hvbox)
 
     def on_exinfo_clicked(self, button):
         """Callback for exinfo button. Show overview of selected experiment."""
