@@ -173,7 +173,9 @@ class DPV:
         self.experimentdir = experimentdir
 
         # setup Experiment-list
-        for file in os.listdir(self.experimentdir):
+        experiments = os.listdir(self.experimentdir)
+        experiments.sort()
+        for file in experiments:
             if file.endswith(".json"):
                 self.liststore_exp.append([file])
 
