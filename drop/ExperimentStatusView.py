@@ -20,6 +20,10 @@ class ExperimentStatusView(gtk.DrawingArea):
         self.latest_gui_update = 0
         self.draw_que = {}
 
+        # indicator tresholds
+        self.green_thresh = 0.8
+        self.yellow_thresh = 0.5
+
         # initiate trackstatus loop
         glib.idle_add(self.redraw)
 
@@ -33,6 +37,7 @@ class ExperimentStatusView(gtk.DrawingArea):
         model.on("phase_ended", self.clear_draw_que)
         model.on("add_draw_que", self.add_draw_que)
         model.on("trial_completed", self.on_trial_completed)
+        model.on("metric_threshold_updated", self.on_threshold_updated)
 
     def remove_model(self, model):
         """Add a model to the view."""
@@ -45,6 +50,13 @@ class ExperimentStatusView(gtk.DrawingArea):
         model.remove_listener("phase_ended", self.clear_draw_que)
         model.remove_listener("add_draw_que", self.add_draw_que)
         model.remove_listener("trial_completed", self.on_trial_completed)
+        model.remove_listener("metric_threshold_updated",
+                              self.on_threshold_updated)
+
+    def on_threshold_updated(self, thresholds):
+        """Callback for threshold_updated signal."""
+        self.green_thresh = thresholds[1]
+        self.yellow_thresh = thresholds[0]
 
     def on_trial_completed(self, a, b, c, d):
         """Callback for the trial_completed signal."""
@@ -160,11 +172,11 @@ class ExperimentStatusView(gtk.DrawingArea):
                     xstart = 0.01
                     for v in values:
 
-                        if 0.8 <= v:
+                        if self.green_thresh <= v:
                             ctx.set_source_rgba(0, 1, 0, 1)
-                        elif 0.5 <= v and v < 0.8:
+                        elif self.yellow_thresh <= v and v < self.green_thresh:
                             ctx.set_source_rgba(1, 1, 0, 1)
-                        elif 0 <= v and v < 0.5:
+                        elif 0 <= v and v < self.yellow_thresh:
                             ctx.set_source_rgba(1, 0, 0, 1)
                         elif v == -1:
                             ctx.set_source_rgba(0.5, 0.5, 0.5, 1.0)

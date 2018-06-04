@@ -59,6 +59,10 @@ class Section(EventEmitter):
         else:
             self.emit("draw_diagnostics", False)
 
+        if "sensor_metric_thresholds" in self.sectioninfo:
+            self.emit("metric_threshold_updated",
+                      self.sectioninfo["sensor_metric_thresholds"])
+
         # load stimuluses
         if "movies" in sectioninfo:
             self.emit("moviefiles_added", self.mediadir, sectioninfo["movies"])
