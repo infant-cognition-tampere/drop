@@ -156,6 +156,7 @@ class ExperimentPsychopyView:
     def draw_overlay_texts(self):
         """Draw all elements in the que. Draws by order of the list."""
         ystartloc = 0.95
+        txtheight = 0.05
         # loop through all the elements
         for key in self.overlay_texts:
             item = self.overlay_texts[key]
@@ -164,13 +165,16 @@ class ExperimentPsychopyView:
             if itype == "text":
                 htxt = visual.TextStim(self.window, text=item["txt"],
                                        pos=(-0.95, ystartloc),
+                                       height=txtheight,
                                        alignHoriz="left", alignVert="center")
                 htxt.draw()
                 ystartloc = ystartloc-0.1
             elif itype == "circle":
                 x, y = utils.to_psychopy_coord(item["x"], item["y"])
-                htxt = visual.TextStim(self.window, text="o", pos=(x, y),
-                                       alignHoriz="center", alignVert="center")
+                htxt = visual.Circle(self.window, pos=(x, y),
+                                     fillColor=[item["r"], item["g"],
+                                                item["b"]],
+                                     size=item["radius"]*2, lineWidth=1.5)
                 htxt.draw()
 
     def create_window(self, debug, res, bgcolor, position):
